@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdressesController!{% endblock %}
+
+{% block body %}
+    <h1> Gestion des adresses</h1>
+    <a href="#">Ajouter</a>
+    {{ form_start(adressesFormAjouter, {'attr': {'id': 'adressFormAjouter', 'action': path('ajouter_adresses'), 'method': 'POST'}}) }}
+        {{ form_row(adressesFormAjouter.nomRue) }}
+        {{ form_row(adressesFormAjouter.numRue) }}
+        {{ form_row(adressesFormAjouter.codePostal) }}
+        {{ form_row(adressesFormAjouter.ville) }}
+        <button type="submit" >Ajouter</button>
+    {{ form_end(adressesFormAjouter) }}
+    <!-- Table content-->
+    <table id="adresses">
+        <theader>
+            <tr>
+                <th>Nom rue</th>
+                <th>Numero rue</th>
+                <th>Code postal</th>
+                <th>Ville</th>
+            </tr>
+        </theader>
+        <tbody id="content">
+        </tbody>
+    </table>
+    <!-- Table content-->
+{% endblock %}
+{% block javascripts %}
+    <script language = "javascript">
+        $("#adressFormAjouter").on("submit", function (event) {
+            event.preventDefault();
+            let data = {};
+            $(this).serializeArray().forEach((object)=>{
+                data[object.name] = object.value;
+            });
+            alert(JSON.stringify(data));
+            $.ajax({
+                url: '/adresses/ajouter',
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                success: function(data, status){
+                    console.log("success: " + data);
+                    alert(JSON.stringify(data));
+                },
+                error: function (xhr, textStatus, errorThrown) {
+
+                    alert('Ajax request failed.' + textStatus + 'errorooo: ' + errorThrown);
+                }
+            });
+        });
+
+        $(document).ready(function(){
+
+            $.ajax({
+                url: '/adresses',
+                type: 'GET',
+                dataType: 'json',
+                async: true,
+
+                success: function(data, status){
+                    $("#content").html('');
+
+                    for(i = 0; i < data.length; i++) {
+                        var e = $('<tr><td id="nomRue"></td><td id="numRue"></td><td id="codePostal"></td><td id="ville"></td>  </tr>');
+
+                        ligne = data[i];
+                        $('#nomRue',e).html(ligne['nomRue']);
+                        $('#numRue',e).html(ligne['numRue']);
+                        $('#codePostal',e).html(ligne['codePostal']);
+                        $('#ville',e).html(ligne['ville']);
+
+                        $("#content").append(e);
+                    }
+                },
+                error : function(xhr, textStatus, errorThrown) {
+                    console.log(xhr);
+                    alert('Ajax request failed.' + textStatus + 'errorooo: ' + errorThrown);
+            }
+        });
+        });
+    </script>
+{% endblock %}
