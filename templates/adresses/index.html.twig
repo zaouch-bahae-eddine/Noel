@@ -5,6 +5,20 @@
 {% block body %}
     <h1> Gestion des adresses</h1>
     <a href="#">Ajouter</a>
+    <!-- form modifier -->
+
+    {{ form_start(adressesFormModifier, {'attr': {'id': 'adressFormModifier', 'action': path('modifier_adresses', {id: 0}), 'method': 'POST'}}) }}
+    {{ form_row(adressesFormModifier.nomRue) }}
+    {{ form_row(adressesFormModifier.numRue) }}
+    {{ form_row(adressesFormModifier.codePostal) }}
+    {{ form_row(adressesFormModifier.ville) }}
+        <button type="submit" >Modifier</button>
+    {{ form_end(adressesFormModifier) }}
+
+    <!-- /form modifier -->
+
+    <!-- form ajouter -->
+
     {{ form_start(adressesFormAjouter, {'attr': {'id': 'adressFormAjouter', 'action': path('ajouter_adresses'), 'method': 'POST'}}) }}
         {{ form_row(adressesFormAjouter.nomRue) }}
         {{ form_row(adressesFormAjouter.numRue) }}
@@ -12,6 +26,9 @@
         {{ form_row(adressesFormAjouter.ville) }}
         <button type="submit" >Ajouter</button>
     {{ form_end(adressesFormAjouter) }}
+
+    <!-- /form ajouter -->
+
     <!-- Table content-->
     <table id="adresses">
         <theader>
@@ -20,40 +37,35 @@
                 <th>Numero rue</th>
                 <th>Code postal</th>
                 <th>Ville</th>
+                <th>Modifier</th>
+                <th>Supprimer</th>
             </tr>
         </theader>
         <tbody id="content">
         </tbody>
     </table>
-    <!-- Table content-->
+    <!-- /Table content-->
 {% endblock %}
 {% block javascripts %}
     <script language = "javascript">
-        $("#adressFormAjouter").on("submit", function (event) {
-            event.preventDefault();
-            let data = {};
-            $(this).serializeArray().forEach((object)=>{
-                data[object.name] = object.value;
-            });
-            alert(JSON.stringify(data));
-            $.ajax({
-                url: '/adresses/ajouter',
-                type: 'POST',
-                data: data,
-                dataType: 'json',
-                success: function(data, status){
-                    console.log("success: " + data);
-                    alert(JSON.stringify(data));
-                },
-                error: function (xhr, textStatus, errorThrown) {
+        //variable globale
+        var idToModif = 0;
+        //variable globale
 
-                    alert('Ajax request failed.' + textStatus + 'errorooo: ' + errorThrown);
-                }
-            });
-        });
+        //Fonction remplis le formulaire apartir des lignes du tableau
+        function modifierAdresse(event){
+            idToModif = Number(event.target.id.substring(10));
+            alert(idToModif);
+            tr = $('#' + event.target.id).closest('tr');
+            $("#adressFormModifier #nomRue").val($('.nomRue', tr).text());
+            $("#adressFormModifier #numRue").val($('.numRue', tr).text());
+            $("#adressFormModifier #codePostal").val($('.codePostal', tr).text());
+            $("#adressFormModifier #ville").val($('.ville', tr).text());
+        }
+        //Fonction remplis le formulaire apartir des lignes du tableau
 
+        //Afficher tableau
         $(document).ready(function(){
-
             $.ajax({
                 url: '/adresses',
                 type: 'GET',
@@ -64,22 +76,134 @@
                     $("#content").html('');
 
                     for(i = 0; i < data.length; i++) {
-                        var e = $('<tr><td id="nomRue"></td><td id="numRue"></td><td id="codePostal"></td><td id="ville"></td>  </tr>');
-
                         ligne = data[i];
-                        $('#nomRue',e).html(ligne['nomRue']);
-                        $('#numRue',e).html(ligne['numRue']);
-                        $('#codePostal',e).html(ligne['codePostal']);
-                        $('#ville',e).html(ligne['ville']);
+                        idModification = 'm-adresse-' + ligne['id'];
+                        idSuppression = 's-adresse-' + ligne['id'];
+                        var e = $('<tr><td class="nomRue">' +
+                                    '</td><td class="numRue"></td>' +
+                                    '<td class="codePostal"></td>' +
+                                    '<td class="ville"></td>' +
+                                    ' <td class="modifier"><a href="#" id="'+idModification+'">Modifier</a></td>' +
+                                    '<td class="supprimer"><a href="#" id="'+idSuppression+'">Supprimer</a></td>'+
+                                '</tr>'
+                        );
+
+                        $('.nomRue',e).html(ligne['nomRue']);
+                        $('.numRue',e).html(ligne['numRue']);
+                        $('.codePostal',e).html(ligne['codePostal']);
+                        $('.ville',e).html(ligne['ville']);
 
                         $("#content").append(e);
+                        $('#'+idModification).click( function (event) {
+                            event.preventDefault();
+                            modifierAdresse(event);
+                        });
                     }
                 },
                 error : function(xhr, textStatus, errorThrown) {
                     console.log(xhr);
                     alert('Ajax request failed.' + textStatus + 'errorooo: ' + errorThrown);
-            }
+                }
         });
         });
+        //Afficher tableau
+
+        //Ajouter
+        $("#adressFormAjouter").on("submit", function (event) {
+            event.preventDefault();
+            var data = {};
+            console.log($(this).serializeArray());
+            $(this).serializeArray().forEach(obj=>{
+                console.log(obj.name);
+                console.log(obj.value);
+                let name = obj.name;
+                let value = obj.value || '';
+                if (data[name]) {
+                    if (!Array.isArray(data[name])) {
+                        data[name] = [data[name]];
+                    }
+                    data[name].push(value);
+                } else {
+                    data[name] = value;
+                }
+            });
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: JSON.stringify(data),
+
+                success: function(response){
+                    $("#adressFormAjouter")[0].reset();
+                    console.log("success: id: " + response[0]["success"] + data);
+                    console.log(data);
+                    if(response[0]["success"]>0){
+                        var e = $('<tr><td class="nomRue">' +
+                            '</td><td class="numRue"></td>' +
+                            '<td class="codePostal"></td>' +
+                            '<td class="ville"></td>' +
+                            ' <td class="modifier"><a href="#" id="m-adresse-'+response[0]["success"]+'" >Modifier</a></td>' +
+                            '<td class="supprimer"><a href="#" id="s-adresse-'+response[0]["success"]+'">Supprimer</a></td>'+
+                            '</tr>'
+                        );
+
+                        $('.nomRue',e).html(data['nomRue']);
+                        $('.numRue',e).html(data['numRue']);
+                        $('.codePostal',e).html(data['codePostal']);
+                        $('.ville',e).html(data['ville']);
+
+                        $("#content").append(e);
+                        $('#m-adresse-'+response[0]["success"]).click( function (event) {
+                            event.preventDefault();
+                            modifierAdresse(event);
+                        });
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    //alert('Ajax request failed.' + textStatus + 'errorooo: ' + errorThrown);
+                }
+            });
+        });
+        //Ajouter
+
+        //Modifier
+        $("#adressFormModifier").on("submit", function (event) {
+            event.preventDefault();
+            var data = {};
+            console.log($(this).serializeArray());
+            $(this).serializeArray().forEach(obj=>{
+                console.log(obj.name);
+                console.log(obj.value);
+                let name = obj.name;
+                let value = obj.value || '';
+                if (data[name]) {
+                    if (!Array.isArray(data[name])) {
+                        data[name] = [data[name]];
+                    }
+                    data[name].push(value);
+                } else {
+                    data[name] = value;
+                }
+            });
+            $.ajax({
+                url: '/adresses/modifier/' + idToModif,
+                type: 'POST',
+                data: JSON.stringify(data),
+
+                success: function (response) {
+                    console.log(response[0]["success"]);
+                    tr = $('#m-adresse-'+response[0]["success"]).closest("tr");
+                    $('.nomRue',tr).html(data['nomRue']);
+                    $('.numRue',tr).html(data['numRue']);
+                    $('.codePostal',tr).html(data['codePostal']);
+                    $('.ville',tr).html(data['ville']);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('error' + errorThrown);
+                }
+            });
+        });
+        //Modifier
+
     </script>
 {% endblock %}
