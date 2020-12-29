@@ -53,7 +53,6 @@ class Adresses
     {
         return $this->id;
     }
-
     public function getNomRue(): ?string
     {
         return $this->nomRue;
@@ -130,5 +129,10 @@ class Adresses
         }
 
         return $this;
+    }
+
+    public function __toString() : string
+    {
+        return $this->numRue.' '.$this->nomRue.' '.$this->codePostal.' '.$this->ville;
     }
 }

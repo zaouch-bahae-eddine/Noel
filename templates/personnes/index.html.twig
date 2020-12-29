@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello PersonnesController!{% endblock %}
+
+{% block body %}
+    <!-- Formulaire d'ajout -->
+    {{ form_start(personnesFormAjouter,{'attr': {'id': 'PersonneFormAjouter'}}) }}
+        {{ form_row(personnesFormAjouter.nom) }}
+        {{ form_row(personnesFormAjouter.sexe) }}
+        {{ form_row(personnesFormAjouter.naissance) }}
+        <div id="select-adresse">
+            {{ form_row(personnesFormAjouter.adresse) }}
+        </div>
+        <button id="display-sub-form">Nouvelle Adresse</button>
+        <div id="sub-form-adresse" style="display: none;">
+            <button id="hide-sub-form">Annuler</button>
+            {{ form_row(personnesFormAjouter.nouvelleAdresse) }}
+        </div>
+    <button type="submit">Ajouter</button>
+    {{ form_end(personnesFormAjouter) }}
+    <!--  Formulaire d'ajout -->
+
+    <!-- Table content-->
+    <table id="personnes">
+        <theader>
+            <tr>
+                <th>Nom Prénom</th>
+                <th>date de naissance</th>
+                <th>sex</th>
+                <th>Adresse</th>
+                <th>Cadeaux souaités</th>
+                <th>Modifier</th>
+                <th>Supprimer</th>
+            </tr>
+        </theader>
+        <tbody id="content">
+        </tbody>
+    </table>
+    <div id="msg-if-vide"></div>
+    <div id="adresse">
+    </div>
+    <!-- /Table content-->
+{% endblock %}
+{% block javascripts %}
+    <script>
+
+        //Display sous-formulaire hide select
+        $('#display-sub-form').click(function (event) {
+            $('#sub-form-adresse').css("display", "block");
+            $('#select-adresse').css("display", "none");
+        });
+        //Display sous-formulaire hide select
+        //Display select hide sous formulaire
+        $('#hide-sub-form').click(function (event) {
+            $('#sub-form-adresse').css("display", "none");
+            $('#select-adresse').css("display", "block");
+        });
+        //Display select hide sous formulaire
+        //Fonction qui affiche dans le tableau html les donnée(personne)
+        function afficherTableau(data){
+            $("#content").html('');
+            $("#msg-if-vide").html('');
+            if(data.length == 0){
+                let e = $('<div>Aucune personne à afficher</div>');
+                $("#msg-if-vide").append(e);
+            } else{
+                for(i = 0; i < data.length; i++) {
+                    let ligne = data[i];
+                    let idModification = 'm-personne-' + ligne['id'];
+                    let idSuppression = 's-personne-' + ligne['id'];
+                    let idAdresse = 's-personne-' + ligne['id'];
+                    let idCadeau = 's-personne-' + ligne['id'];
+
+                    let e = $('<tr><td class="nom">' +
+                        '</td><td class="naissance"></td>' +
+                        '<td class="sexe"></td>' +
+                        '<td class="adresse"></td>' +
+                        '<td class="cadeaux"><a href="#" id="' + idCadeau + '">Cadeaux souhaités</a></td>' +
+                        ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
+                        '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                        '</tr>'
+                    );
+
+                    $('.nom', e).html(ligne['nom']);
+                    $('.naissance', e).html(ligne['naissance']);
+                    $('.sexe', e).html(ligne['sexe']);
+                    $('.adresse', e).html(
+                        ligne['adresse']["numRue"] + ' ' +
+                        ligne['adresse']["nomRue"] + '<br/>' +
+                        ligne['adresse']["codePostal"] + ' ' +
+                        ligne['adresse']["ville"]
+                    );
+
+                    $("#content").append(e);
+                    $('#' + idModification).click(function (event) {
+                        event.preventDefault();
+                        //modifierPersonne(event);
+                    });
+                    $('#' + idSuppression).click(function (event) {
+                        event.preventDefault();
+                        let idToDelete = Number(event.target.id.substring(10));
+                        //supprimer(idToDelete);
+                    });
+                }
+            }
+        }
+        //Fonction qui affiche dans le tableau html les donnée(personne)
+
+        //Afficher tableau
+        $(document).ready(function () {
+            $.ajax({
+                url: '/personnes',
+                type: 'GET',
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    afficherTableau(data)
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.log(xhr);
+                    alert('Ajax request failed.' + textStatus + 'error: ' + errorThrown);
+                }
+            });
+        });
+        //Afficher tableau
+
+        //Ajouter Personne
+        $("#PersonneFormAjouter").on("submit", function (event) {
+
+        })
+        //Ajouter Personne
+
+    </script>
+{% endblock %}

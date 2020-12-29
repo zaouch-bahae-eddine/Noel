@@ -12,10 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-
 class AdressesController extends AbstractController
 {
  /*   private $form;
@@ -34,6 +30,7 @@ class AdressesController extends AbstractController
         if ($request->isXmlHttpRequest()) {
             $adresses = $this->getDoctrine()->getRepository(Adresses::class)->findAll();
             $i = 0;
+            $dataJson = [];
             foreach ($adresses as $adresse) {
                 $ligne = [
                     "id" => $adresse->getId(),
@@ -58,11 +55,6 @@ class AdressesController extends AbstractController
     {
         if($request->isXmlHttpRequest()) {
             $json = $this->getJson($request);
-            /*$encoders =  [new JsonEncoder()];
-            $normalizers = [new ObjectNormalizer()];
-            $serializer = new Serializer($normalizers, $encoders);
-            /** @var Adresses $adresse */
-            /*$adresse = $serializer->deserialize($request->getContent(), Adresses::class, 'json');*/
             $form = $this->createForm(AdressesType::class, null);
             $form->submit($json);
             if (!$form->isValid()) {
@@ -80,22 +72,31 @@ class AdressesController extends AbstractController
     /**
      * @Route("/adresses/modifier/{id}", name="modifier_adresses", methods={"POST"})
      */
-    public function modifierAction( Adresses $oldAdresses, Request $request): Response
+    public function modifierAction(Adresses $oldAdresses, Request $request): Response
     {
-        dd($oldAdresses);
-        if($request->isXmlHttpRequest() && $oldAdresses != null) {
+        if( $request->isXmlHttpRequest() && $oldAdresses != null) {
             $json = $this->getJson($request);
             $form = $this->createForm(AdressesType::class, null);
             $form->submit($json);
             if (!$form->isValid()) {
                 throw new FormatException($form);
             }
+            /**
+             * @var Adresses $newAdresse
+             */
             $newAdresse = $form->getData();
+
+            $oldAdresses->setNumRue($newAdresse->getNumRue())
+                ->setNomRue($newAdresse->getNomRue())
+                ->setVille($newAdresse->getVille())
+                ->setCodePostal($newAdresse->getCodePostal());
+
             $em = $this->getDoctrine()->getManager();
-            $em->persist($newAdresse);
+            $em->persist($oldAdresses);
             $em->flush();
+
             return new JsonResponse([
-                ["success" => $newAdresse->getId()]
+                ["success" => $oldAdresses->getId()]
             ], 200);
         } else {
             return new JsonResponse([
@@ -103,6 +104,59 @@ class AdressesController extends AbstractController
             ], 412);
         }
     }
+
+    /**
+     * @Route("/adresses/supprimer/{id}", name="supprimer_adresses", methods={"DELETE"})
+     */
+    public function supprimerAction(Adresses $oldAdresses, Request $request): Response
+    {
+        if($request->isXmlHttpRequest() && $oldAdresses != null) {
+            if (!$oldAdresses->getPersonnes()[0]) {
+                $em = $this->getDoctrine()->getManager();
+                $id = $oldAdresses->getId();
+                $em->remove($oldAdresses);
+                $em->flush();
+                return new JsonResponse([["success" => $id]], 202);
+            } else {
+                return new JsonResponse([["message" => "Impossible de supprimer cette adresse! L'adresse contient des personnes"]], 204);
+            }
+        } else {
+            return new JsonResponse([["message" => "L'adresse à supprimer est n'existe pas !"]], 404);
+        }
+    }
+    /**
+     * @Route("/adresses/ville", name="adresse_par_ville", methods={"GET", "POST"})
+     */
+    public function afficherAdressesParVille(Request $request){
+        if($request->isXmlHttpRequest() || true)
+        {
+            $ville = $this->getJson($request)["ville"];
+            if($ville != "") {
+                $adresses = $this->getDoctrine()->getRepository(Adresses::class)->findBy(["ville" => $ville]);
+            } else {
+                $adresses = $this->getDoctrine()->getRepository(Adresses::class)->findAll();
+            }
+            $i = 0;
+            $dataJson = [];
+            foreach ($adresses as $adresse) {
+                $ligne = [
+                    "id" => $adresse->getId(),
+                    "nomRue" => $adresse->getNomRue(),
+                    "numRue" => $adresse->getNumRue(),
+                    "codePostal" => $adresse->getCodePostal(),
+                    "ville" => $adresse->getVille(),
+                ];
+                $dataJson[$i] = $ligne;
+                $i++;
+            }
+            return new JsonResponse($dataJson);
+        }
+        return new JsonResponse([["fail" => "Ajax request required"]],400);
+    }
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     private function getJson(Request $request)
     {
 
@@ -110,7 +164,6 @@ class AdressesController extends AbstractController
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new HttpException(400, 'Invalid json');
         }
-        //dd($data);
         return $data;
     }
 }

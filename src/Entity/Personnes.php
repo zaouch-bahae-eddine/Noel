@@ -40,6 +40,11 @@ class Personnes
      */
     private $cadeaux;
 
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $naissance;
+
     public function __construct()
     {
         $this->cadeaux = new ArrayCollection();
@@ -106,6 +111,18 @@ class Personnes
     public function removeCadeaux(Cadeaux $cadeaux): self
     {
         $this->cadeaux->removeElement($cadeaux);
+
+        return $this;
+    }
+
+    public function getNaissance(): ?\DateTimeInterface
+    {
+        return $this->naissance;
+    }
+
+    public function setNaissance(\DateTimeInterface $naissance): self
+    {
+        $this->naissance = $naissance;
 
         return $this;
     }

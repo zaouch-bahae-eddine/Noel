@@ -4,6 +4,13 @@
 
 {% block body %}
     <h1> Gestion des adresses</h1>
+    <div id="filtres">
+        <form>
+            <label for="filtreVille">Ville</label>
+            <input type="text" id="filtreVille" />
+            <button type="submit">Chercher</button>
+        </form>
+    </div>
     <a href="#">Ajouter</a>
     <!-- form modifier -->
 
@@ -44,7 +51,9 @@
         <tbody id="content">
         </tbody>
     </table>
+    <div id="msg-if-vide"></div>
     <!-- /Table content-->
+
 {% endblock %}
 {% block javascripts %}
     <script language = "javascript">
@@ -55,7 +64,6 @@
         //Fonction remplis le formulaire apartir des lignes du tableau
         function modifierAdresse(event){
             idToModif = Number(event.target.id.substring(10));
-            alert(idToModif);
             tr = $('#' + event.target.id).closest('tr');
             $("#adressFormModifier #nomRue").val($('.nomRue', tr).text());
             $("#adressFormModifier #numRue").val($('.numRue', tr).text());
@@ -63,6 +71,53 @@
             $("#adressFormModifier #ville").val($('.ville', tr).text());
         }
         //Fonction remplis le formulaire apartir des lignes du tableau
+
+        //Fonction supprimer ligne du tableau a partir de son id
+        function supprimerAdresseFromTable(id){
+            $('#s-adresse-' +id).closest('tr').html('');
+        }
+        //Fonction supprimer ligne du tableau a partir de son id
+
+        //Fonction qui affiche dans le tableau html les donnée(adresse)
+        function afficherTableau(data){
+            $("#content").html('');
+            $("#msg-if-vide").html('');
+            if(data.length == 0){
+                let e = $('<div>Aucune adresse dans cette ville</div>');
+                $("#msg-if-vide").append(e);
+            } else{
+                for(i = 0; i < data.length; i++) {
+                    ligne = data[i];
+                    idModification = 'm-adresse-' + ligne['id'];
+                    idSuppression = 's-adresse-' + ligne['id'];
+                    var e = $('<tr><td class="nomRue">' +
+                        '</td><td class="numRue"></td>' +
+                        '<td class="codePostal"></td>' +
+                        '<td class="ville"></td>' +
+                        ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
+                        '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                        '</tr>'
+                    );
+
+                    $('.nomRue', e).html(ligne['nomRue']);
+                    $('.numRue', e).html(ligne['numRue']);
+                    $('.codePostal', e).html(ligne['codePostal']);
+                    $('.ville', e).html(ligne['ville']);
+
+                    $("#content").append(e);
+                    $('#' + idModification).click(function (event) {
+                        event.preventDefault();
+                        modifierAdresse(event);
+                    });
+                    $('#' + idSuppression).click(function (event) {
+                        event.preventDefault();
+                        let idToDelete = Number(event.target.id.substring(10));
+                        supprimer(idToDelete);
+                    });
+                }
+            }
+        }
+        //Fonction qui affiche dans le tableau html les donnée(adresse)
 
         //Afficher tableau
         $(document).ready(function(){
@@ -72,35 +127,10 @@
                 dataType: 'json',
                 async: true,
 
-                success: function(data, status){
-                    $("#content").html('');
-
-                    for(i = 0; i < data.length; i++) {
-                        ligne = data[i];
-                        idModification = 'm-adresse-' + ligne['id'];
-                        idSuppression = 's-adresse-' + ligne['id'];
-                        var e = $('<tr><td class="nomRue">' +
-                                    '</td><td class="numRue"></td>' +
-                                    '<td class="codePostal"></td>' +
-                                    '<td class="ville"></td>' +
-                                    ' <td class="modifier"><a href="#" id="'+idModification+'">Modifier</a></td>' +
-                                    '<td class="supprimer"><a href="#" id="'+idSuppression+'">Supprimer</a></td>'+
-                                '</tr>'
-                        );
-
-                        $('.nomRue',e).html(ligne['nomRue']);
-                        $('.numRue',e).html(ligne['numRue']);
-                        $('.codePostal',e).html(ligne['codePostal']);
-                        $('.ville',e).html(ligne['ville']);
-
-                        $("#content").append(e);
-                        $('#'+idModification).click( function (event) {
-                            event.preventDefault();
-                            modifierAdresse(event);
-                        });
-                    }
+                success: function (data) {
+                    afficherTableau(data)
                 },
-                error : function(xhr, textStatus, errorThrown) {
+                error: function(xhr, textStatus, errorThrown) {
                     console.log(xhr);
                     alert('Ajax request failed.' + textStatus + 'errorooo: ' + errorThrown);
                 }
@@ -156,6 +186,11 @@
                             event.preventDefault();
                             modifierAdresse(event);
                         });
+                        $('#s-adresse-'+response[0]["success"]).click( function (event) {
+                            event.preventDefault();
+                            let idToDelete = Number(event.target.id.substring(10));
+                            supprimer(idToDelete);
+                        });
                     }
                 },
                 error: function (xhr, textStatus, errorThrown) {
@@ -200,10 +235,47 @@
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     console.log('error' + errorThrown);
+                    console.log('data' + JSON.stringify(data));
                 }
             });
         });
         //Modifier
+
+        //supprimer
+        function supprimer(idToDelete){
+            $.ajax({
+                url: '/adresses/supprimer/'+idToDelete,
+                type: 'DELETE',
+                async: true,
+
+                success: function (response) {
+                    //Effacer la ligne dans le tableau html
+                    supprimerAdresseFromTable(response[0]["success"]);
+                },
+                error: function (response) {
+                    console.log(response[0]["message"]);
+                }
+            });
+        }
+        //supprimer
+
+        //filtre ville
+        $('#filtres').on('submit', function (event) {
+            event.preventDefault();
+            let ville = {"ville" : $('#filtreVille').val().trim()};
+            $.ajax({
+                url: '/adresses/ville',
+                type: 'POST',
+                data: JSON.stringify(ville),
+                success: function(data) {
+                        afficherTableau(data);
+                },
+                error: function (response) {
+                    console.log(response[0]["fail"]);
+                }
+            });
+        });
+        //filtre ville
 
     </script>
 {% endblock %}

@@ -18,7 +18,7 @@ class AdressesType extends AbstractType
             ->add('nomRue',TextType::class)
             ->add('numRue', IntegerType::class)
             ->add('codePostal', IntegerType::class)
-            ->add('ville')
+            ->add('ville', TextType::class)
         ;
     }
 
