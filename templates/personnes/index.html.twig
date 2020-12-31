@@ -58,12 +58,14 @@
         //Display select hide sous formulaire
         //Fonction qui affiche dans le tableau html les donnée(personne)
         function afficherTableau(data){
-            $("#content").html('');
-            $("#msg-if-vide").html('');
+            if(data.length > 1){
+                $("#content").html('');
+            }
             if(data.length == 0){
                 let e = $('<div>Aucune personne à afficher</div>');
                 $("#msg-if-vide").append(e);
             } else{
+                $("#msg-if-vide").html('');
                 for(i = 0; i < data.length; i++) {
                     let ligne = data[i];
                     let idModification = 'm-personne-' + ligne['id'];
@@ -126,9 +128,54 @@
 
         //Ajouter Personne
         $("#PersonneFormAjouter").on("submit", function (event) {
+            event.preventDefault();
+            var data = {};
+            console.log($(this).serializeArray());
+            //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
+            $(this).serializeArray().forEach(obj=>{
+                let name = getNameInput(obj.name);
+                let value = obj.value || '';
+                if (data[name]) {
+                    if (!Array.isArray(data[name])) {
+                        data[name] = [data[name]];
+                    }
+                    data[name].push(value);
+                } else {
+                    data[name] = value;
+                }
+            });
+            console.log(JSON.stringify(data));
+            $.ajax({
+                url: "/personnes/ajouter",
+                type: 'POST',
+                dataType: 'json',
+                async: true,
+                data: JSON.stringify(data),
 
-        })
+                success: function (response) {
+                    console.log("test");
+                    afficherTableau(response);
+                },
+                error: function (xhr, status, errorThrown) {
+                    console.log("erreur: " + errorThrown+ "status"+ status+ "xhr" + xhr);
+                }
+            });
+        });
         //Ajouter Personne
 
+        //Return le nom des inpute de symfony exemple (adresse[nom] => nom)
+        function getNameInput(inputName) {
+            let t = inputName.split("");
+            let prefix = '';
+            for (i = 0; i < t.length; i++) {
+                if(t[i] != "[" && t[i] != "]"){
+                    prefix += t[i];
+                } else if(t[i] == "["){
+                    prefix = '';
+                }
+            }
+            return prefix;
+        }
+        //Return le nom des inpute de symfony exemple (adresse[nom] => nom)
     </script>
 {% endblock %}

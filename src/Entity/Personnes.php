@@ -126,4 +126,10 @@ class Personnes
 
         return $this;
     }
+    //nouvelle adresse n'existe pas dans la classe Personnes mais on la rajouter dans PersonnesType comme un sous formulaire
+    // ce qui introduit l'erreur lors de la creation de l'objet personnes aprtir de ($formAdresse->submit($data)) dans notre controlleur
+    //l'ajout de cette methode est pour surmanter l'erreur sans aucun autre effet
+    public function getNouvelleAdresse(){
+        return $this->getAdresse();
+    }
 }
