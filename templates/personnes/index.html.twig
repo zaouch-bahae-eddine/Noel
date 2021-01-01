@@ -5,28 +5,45 @@
 {% block body %}
     <!-- Formulaire d'ajout -->
     {{ form_start(personnesFormAjouter,{'attr': {'id': 'PersonneFormAjouter'}}) }}
-        {{ form_row(personnesFormAjouter.nom) }}
-        {{ form_row(personnesFormAjouter.sexe) }}
-        {{ form_row(personnesFormAjouter.naissance) }}
-        <div id="select-adresse">
-            {{ form_row(personnesFormAjouter.adresse) }}
-        </div>
-        <button id="display-sub-form">Nouvelle Adresse</button>
-        <div id="sub-form-adresse" style="display: none;">
-            <button id="hide-sub-form">Annuler</button>
-            {{ form_row(personnesFormAjouter.nouvelleAdresse) }}
-        </div>
-    <button type="submit">Ajouter</button>
+    {{ form_row(personnesFormAjouter.nom) }}
+    {{ form_row(personnesFormAjouter.sexe) }}
+    {{ form_row(personnesFormAjouter.naissance) }}
+    <div id="select-adresse">
+        {{ form_row(personnesFormAjouter.adresse) }}
+    </div>
+    <a class="display-sub-form">Nouvelle Adresse</a>
+    <div class="sub-form-adresse" style="display: none;">
+        <a class="hide-sub-form">Annuler</a>
+        {{ form_row(personnesFormAjouter.nouvelleAdresse) }}
+    </div>
+    <button id="ajoutButton" type="submit">Ajouter</button>
     {{ form_end(personnesFormAjouter) }}
     <!--  Formulaire d'ajout -->
-
+    <hr/>
+    <!-- Formulaire de modifier -->
+    {{ form_start(personnesFormModifier,{'attr': {'id': 'PersonneFormModifier'}}) }}
+    {{ form_row(personnesFormModifier.nom) }}
+    {{ form_row(personnesFormModifier.sexe) }}
+    {{ form_row(personnesFormModifier.naissance) }}
+    <div id="select-adresse">
+        {{ form_row(personnesFormModifier.adresse) }}
+    </div>
+    <a class="display-sub-form" >Nouvelle Adresse</a>
+    <div class="sub-form-adresse" style="display: none;">
+        <a class="hide-sub-form">Annuler</a>
+        {{ form_row(personnesFormModifier.nouvelleAdresse) }}
+    </div>
+    <button id="modifierButton" type="submit">Modifier</button>
+    {{ form_end(personnesFormModifier) }}
+    <!--  Formulaire de modifier -->
+    <hr/>
     <!-- Table content-->
     <table id="personnes">
         <theader>
             <tr>
                 <th>Nom Prénom</th>
                 <th>date de naissance</th>
-                <th>sex</th>
+                <th>sexe</th>
                 <th>Adresse</th>
                 <th>Cadeaux souaités</th>
                 <th>Modifier</th>
@@ -43,17 +60,20 @@
 {% endblock %}
 {% block javascripts %}
     <script>
+        //variables globales
+        var idToModif = 0;
+        //variables globales
 
         //Display sous-formulaire hide select
-        $('#display-sub-form').click(function (event) {
-            $('#sub-form-adresse').css("display", "block");
-            $('#select-adresse').css("display", "none");
+        $('.display-sub-form').click(function (event) {
+            $('.sub-form-adresse').css("display", "block");
+            $('.select-adresse').css("display", "none");
         });
         //Display sous-formulaire hide select
         //Display select hide sous formulaire
-        $('#hide-sub-form').click(function (event) {
-            $('#sub-form-adresse').css("display", "none");
-            $('#select-adresse').css("display", "block");
+        $('.hide-sub-form').click(function (event) {
+            $('.sub-form-adresse').css("display", "none");
+            $('.select-adresse').css("display", "block");
         });
         //Display select hide sous formulaire
         //Fonction qui affiche dans le tableau html les donnée(personne)
@@ -70,13 +90,13 @@
                     let ligne = data[i];
                     let idModification = 'm-personne-' + ligne['id'];
                     let idSuppression = 's-personne-' + ligne['id'];
-                    let idAdresse = 's-personne-' + ligne['id'];
-                    let idCadeau = 's-personne-' + ligne['id'];
+                    let idCadeau = 'c-personne-' + ligne['id'];
+                    let idAdresse= 'a-personne-' + ligne['adresse']['idAdresse'];
 
                     let e = $('<tr><td class="nom">' +
                         '</td><td class="naissance"></td>' +
                         '<td class="sexe"></td>' +
-                        '<td class="adresse"></td>' +
+                        '<td class="adresse" id='+ idAdresse +'></td>' +
                         '<td class="cadeaux"><a href="#" id="' + idCadeau + '">Cadeaux souhaités</a></td>' +
                         ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
                         '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
@@ -96,7 +116,7 @@
                     $("#content").append(e);
                     $('#' + idModification).click(function (event) {
                         event.preventDefault();
-                        //modifierPersonne(event);
+                        modifierPersonne(event);
                     });
                     $('#' + idSuppression).click(function (event) {
                         event.preventDefault();
@@ -108,27 +128,92 @@
         }
         //Fonction qui affiche dans le tableau html les donnée(personne)
 
-        //Afficher tableau
-        $(document).ready(function () {
-            $.ajax({
-                url: '/personnes',
-                type: 'GET',
-                dataType: 'json',
-                async: true,
-                success: function (data) {
-                    afficherTableau(data)
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                    console.log(xhr);
-                    alert('Ajax request failed.' + textStatus + 'error: ' + errorThrown);
-                }
-            });
-        });
-        //Afficher tableau
+        //Fonction: Modifier personne
+        //Fonction: Modifier personne
+        function modifierPersonne(event) {
+            idToModif = Number(event.target.id.substring(11));
 
-        //Ajouter Personne
-        $("#PersonneFormAjouter").on("submit", function (event) {
+            let tr = $('#' + event.target.id).closest('tr');
+            let idAdresse = $('.adresse', tr).attr('id').substring(11);
+            console.log(idAdresse);
+            $("#PersonneFormModifier #personnes_adresses_nom").val($('.nom', tr).text());
+            alert($('.sexe', tr).text());
+            if($('.sexe', tr).text() == 'Home') {
+                $("#PersonneFormModifier #personnes_adresses_sexe_0").attr('checked', true);
+            }
+            else {
+                $("#PersonneFormModifier #personnes_adresses_sexe_1").attr('checked', true);
+            }
+            $("#PersonneFormModifier #personnes_adresses_naissance").val($('.naissance', tr).text());
+            $('#PersonneFormModifier #personnes_adresses_adresse option[value="'+idAdresse+'"]').attr('selected', true);
+        }
+
+
+            //Afficher tableau
+            $(document).ready(function () {
+                $('.js-datepicker').datepicker({
+                    format : 'dd/mm/yyyy',
+                    daysMin:["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"],
+                    months:["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"]
+                });
+                $.ajax({
+                    url: '/personnes',
+                    type: 'GET',
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        afficherTableau(data)
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        console.log(xhr);
+                        alert('Ajax request failed.' + textStatus + 'error: ' + errorThrown);
+                    }
+                });
+            });
+            //Afficher tableau
+
+            //Ajouter Personne
+            $("#PersonneFormAjouter").on("submit", function (event) {
+                event.preventDefault();
+
+                var data = {};
+                console.log($(this).serializeArray());
+                //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
+                $(this).serializeArray().forEach(obj=>{
+                    let name = getNameInput(obj.name);
+                    let value = obj.value || '';
+                    if (data[name]) {
+                        if (!Array.isArray(data[name])) {
+                            data[name] = [data[name]];
+                        }
+                        data[name].push(value);
+                    } else {
+                        data[name] = value;
+                    }
+                });
+                console.log(JSON.stringify(data));
+                $.ajax({
+                    url: "/personnes/ajouter",
+                    type: 'POST',
+                    dataType: 'json',
+                    async: true,
+                    data: JSON.stringify(data),
+
+                    success: function (response) {
+                        console.log("test");
+                        afficherTableau(response);
+                    },
+                    error: function (xhr, status, errorThrown) {
+                        console.log("erreur: " + errorThrown+ "status"+ status+ "xhr" + xhr);
+                    }
+                });
+            });
+            //Ajouter Personne
+
+            //Modifier Personne
+        $("#PersonneFormModifier").on("submit", function (event) {
             event.preventDefault();
+
             var data = {};
             console.log($(this).serializeArray());
             //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
@@ -146,36 +231,45 @@
             });
             console.log(JSON.stringify(data));
             $.ajax({
-                url: "/personnes/ajouter",
+                url: "/personnes/modifier/"+idToModif,
                 type: 'POST',
                 dataType: 'json',
                 async: true,
                 data: JSON.stringify(data),
 
                 success: function (response) {
-                    console.log("test");
-                    afficherTableau(response);
+
+                    let ligne = response[0];
+                    console.log("===>" + ligne['naissance']);
+                    tr = $('#m-personne-'+ligne["id"]).closest("tr");
+                    $('.naissance',tr).html(ligne['naissance']);
+                    $('.sexe',tr).html(ligne['sexe']);
+                    $('.adresse',tr).html(
+                        ligne['adresse']["numRue"] + ' ' +
+                        ligne['adresse']["nomRue"] + '<br/>' +
+                        ligne['adresse']["codePostal"] + ' ' +
+                        ligne['adresse']["ville"]);
                 },
                 error: function (xhr, status, errorThrown) {
                     console.log("erreur: " + errorThrown+ "status"+ status+ "xhr" + xhr);
                 }
             });
         });
-        //Ajouter Personne
+            //Modifier Personne
 
-        //Return le nom des inpute de symfony exemple (adresse[nom] => nom)
-        function getNameInput(inputName) {
-            let t = inputName.split("");
-            let prefix = '';
-            for (i = 0; i < t.length; i++) {
-                if(t[i] != "[" && t[i] != "]"){
-                    prefix += t[i];
-                } else if(t[i] == "["){
-                    prefix = '';
+            //Return le nom des inpute de symfony exemple (adresse[nom] => nom)
+            function getNameInput(inputName) {
+                let t = inputName.split("");
+                let prefix = '';
+                for (i = 0; i < t.length; i++) {
+                    if(t[i] != "[" && t[i] != "]"){
+                        prefix += t[i];
+                    } else if(t[i] == "["){
+                        prefix = '';
+                    }
                 }
+                return prefix;
             }
-            return prefix;
-        }
         //Return le nom des inpute de symfony exemple (adresse[nom] => nom)
     </script>
 {% endblock %}
