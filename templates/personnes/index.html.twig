@@ -3,6 +3,17 @@
 {% block title %}Hello PersonnesController!{% endblock %}
 
 {% block body %}
+    <div class="filtre">
+        <form id="filtrePersonne">
+            <select id="filtre-ville" >
+                <option selected="selected">Ville</option>
+            </select>
+            <select id="filtre-rue" disabled>
+                <option selected="selected">Nom rue</option>
+            </select>
+        </form>
+    </div>
+    <hr/>
     <!-- Formulaire d'ajout -->
     {{ form_start(personnesFormAjouter,{'attr': {'id': 'PersonneFormAjouter'}}) }}
     {{ form_row(personnesFormAjouter.nom) }}
@@ -70,12 +81,115 @@
             $('.select-adresse').css("display", "none");
         });
         //Display sous-formulaire hide select
+
         //Display select hide sous formulaire
         $('.hide-sub-form').click(function (event) {
             $('.sub-form-adresse').css("display", "none");
             $('.select-adresse').css("display", "block");
         });
         //Display select hide sous formulaire
+
+        //Remplire le select du filtre ville
+        function villePopulate() {
+            $("#filtre-ville").html('<option value="0" selected="selected">Toutes les villes</option>');
+
+            $("#PersonneFormModifier #personnes_adresses_adresse").children('option').each(function(){
+                if(getVilleFromAdresse($(this).text()) != '') {
+                    let option = '<option value="' + this.value + '">' + getVilleFromAdresse($(this).text()) + '</option>';
+                    $("#filtre-ville").append(option);
+                }
+            });
+        }
+        function getVilleFromAdresse(adresse) {
+            let tab = adresse.split('');
+            let ville = '';
+            for(i = 0; i < tab.length; i++) {
+                if(tab[i] != ' ') {
+                    ville += tab[i];
+                } else {
+                    ville = '';
+                }
+            }
+            return ville;
+        }
+        //Remplire le select du filtre ville
+
+        //Ecouter changement du select ville (Filtre)
+        $("#filtre-ville").on('change', function () {
+            console.log('value: '+ $(this).find(":selected").val() + ' ville: '+ $(this).find(":selected").text());
+            $.ajax({
+                url: '/personnes/filtre/ville/'+ $(this).find(":selected").val(),
+                type: 'GET',
+                dataType: 'json',
+
+                success: function (response) {
+                    $("#content").html('');
+                    $("#filtre-rue").html('<option value="0" selected="selected">Toutes les rue</option>');
+                    $("#filtre-rue").prop('disabled', false);
+                    if(typeof response["Rues"] !== 'undefined') {
+                        response["Rues"].forEach(function (rueObjet) {
+                            let option = '<option value="'+rueObjet["idAdresse"]+'">'+rueObjet["nomRue"]+' </option>';
+                            $("#filtre-rue").append(option);
+
+                        })
+                        afficherTableau(response["Personnes"]);
+                    } else {
+                        $("#filtre-rue").prop('disabled', true);
+                        afficherTableau(response);
+                    }
+                },
+                error: function () {
+                    console.log("Ecouter changement select ville")
+                }
+            })
+        });
+        //Ecouter changement select ville (Filtre)
+
+        //Ecouter changement select Rue (Filtre)
+        $("#filtre-rue").on('change', function () {
+            console.log('===> =>value: '+ $(this).find(":selected").val() + ' ville: '+ $(this).find(":selected").text() + 'id Ville =>' + $("#filtre-ville").find(":selected").val());
+            $.ajax({
+                url: '/personnes/filtre/ville/'+$("#filtre-ville").find(":selected").val()+'/rue',
+                type: 'GET',
+                dataType: 'json',
+                data: {"nomRue": $(this).find(":selected").text(), "valueSelect": $(this).find(":selected").val()},
+                success: function (response) {
+                    $("#content").html('');
+                    $("#filtre-rue").prop('disabled', false);
+                    if(typeof response["Rues"] !== 'undefined') {
+                        afficherTableau(response["Personnes"]);
+                    } else {
+                        $("#filtre-rue").prop('disabled', true);
+                        afficherTableau(response);
+                    }
+                },
+                error: function () {
+                    console.log("Ecouter changement select ville")
+                }
+            })
+        });
+        //Ecouter changement select Rue (Filtre)
+
+        //supp
+        function supprimer(idToDelete){
+            $.ajax({
+                url: '/personnes/supprimer/' + idToDelete,
+                type: 'DELETE',
+
+                success: function (response) {
+                    if(response[0]["success"] == idToDelete){
+                        $("#s-personne-"+idToDelete).closest('tr').remove();
+                    } else {
+                        console.log('probleme id delete');
+                    }
+                },
+                error: function (response) {
+                    console.log(response[0]["fail"]);
+                }
+            })
+        }
+        //supp
+
         //Fonction qui affiche dans le tableau html les donnée(personne)
         function afficherTableau(data){
             if(data.length > 1){
@@ -120,8 +234,8 @@
                     });
                     $('#' + idSuppression).click(function (event) {
                         event.preventDefault();
-                        let idToDelete = Number(event.target.id.substring(10));
-                        //supprimer(idToDelete);
+                        let idToDelete = Number(event.target.id.substring(11));
+                        supprimer(idToDelete);
                     });
                 }
             }
@@ -151,6 +265,7 @@
 
             //Afficher tableau
             $(document).ready(function () {
+                villePopulate();
                 $('.js-datepicker').datepicker({
                     format : 'dd/mm/yyyy',
                     daysMin:["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"],
@@ -200,6 +315,19 @@
                     data: JSON.stringify(data),
 
                     success: function (response) {
+                        let ligne = response[0];
+                        //A mettre dans une fonction
+                        if(!ligne["adresse"]["adresseExiste"]) {
+                            let option = '<option value="'+ligne["adresse"]["idAdresse"]+'">'+
+                                ligne["adresse"]["numRue"] +' '+
+                                ligne["adresse"]["nomRue"] +' '+
+                                ligne["adresse"]["codePostal"] +' '+
+                                ligne["adresse"]["ville"]+'</option>';
+                            $('#PersonneFormAjouter #personnes_adresses_adresse').append(option);
+                            $('#PersonneFormModifier #personnes_adresses_adresse').append(option);
+                            villePopulate();//Actualiser le filtre ville
+                        }
+                        //A mettre dans une fonction
                         console.log("test");
                         afficherTableau(response);
                     },
@@ -238,8 +366,19 @@
                 data: JSON.stringify(data),
 
                 success: function (response) {
-
                     let ligne = response[0];
+                    //A mettre dans une fonction
+                    if(!ligne["adresse"]["adresseExiste"]) {
+                        let option = '<option value="'+ligne["adresse"]["idAdresse"]+'">'+
+                            ligne["adresse"]["numRue"] +' '+
+                            ligne["adresse"]["nomRue"] +' '+
+                            ligne["adresse"]["codePostal"] +' '+
+                            ligne["adresse"]["ville"]+'</option>';
+                        $('#PersonneFormAjouter #personnes_adresses_adresse').append(option);
+                        $('#PersonneFormModifier #personnes_adresses_adresse').append(option);
+                        villePopulate() //Actualiser le filtre ville
+                    }
+                    //A mettre dans une fonction
                     console.log("===>" + ligne['naissance']);
                     tr = $('#m-personne-'+ligne["id"]).closest("tr");
                     $('.naissance',tr).html(ligne['naissance']);
@@ -256,6 +395,11 @@
             });
         });
             //Modifier Personne
+
+        //Supprimer Personne
+
+        //Supprimer Personne
+
 
             //Return le nom des inpute de symfony exemple (adresse[nom] => nom)
             function getNameInput(inputName) {

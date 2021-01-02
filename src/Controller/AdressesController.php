@@ -108,7 +108,7 @@ class AdressesController extends AbstractController
     /**
      * @Route("/adresses/supprimer/{id}", name="supprimer_adresses", methods={"DELETE"})
      */
-    public function supprimerAction(Adresses $oldAdresses, Request $request): Response
+    public function supprimerAction(Adresses $oldAdresses, Request $request)
     {
         if($request->isXmlHttpRequest() && $oldAdresses != null) {
             if (!$oldAdresses->getPersonnes()[0]) {

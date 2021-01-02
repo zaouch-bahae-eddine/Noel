@@ -22,11 +22,11 @@ class PersonnesController extends AbstractController
     /**
      * @Route("/personnes", name="personnes")
      */
-    public function index(Request $request): Response
+    public function index(Request $request, $sfDemande = false): Response
     {
         $form = $this->createForm(PersonnesAdressesType::class, null);
         $formModifier = $this->createForm(PersonnesAdressesType::class, null);
-        if($request->isXmlHttpRequest()){
+        if($request->isXmlHttpRequest() || $sfDemande){
             $personnes = $this->getDoctrine()->getRepository(Personnes::class)->findAll();
             $i = 0;
             $dataJson = [];
@@ -69,11 +69,10 @@ class PersonnesController extends AbstractController
 
             $data = $this->getJson($request);
             $em = $this->getDoctrine()->getManager();
-
+            $adresseExiste = true;
 
             //obj de type DATETIME
             $naissance = \DateTime::createFromFormat("d/m/Y", $data["naissance"]);
-            $data["naissance"] = $naissance;
 
             //logique de creation de type DATETIME from string (year, month, day)
             if ($data["ville"] != "") {
@@ -85,8 +84,7 @@ class PersonnesController extends AbstractController
                 $newAdresse = $formAdress->getData();
                 $em->persist($newAdresse);
                 $em->flush();
-                $data["adresse"] = $newAdresse;
-
+                $adresseExiste = false;
                 $formPersonne->submit($data);
                 /**
                  * @var Personnes $newPersonne
@@ -123,6 +121,7 @@ class PersonnesController extends AbstractController
                 "naissance" => $newPersonne->getNaissance()->format('d/m/Y'),
                 "sexe" => $newPersonne->getSexe(),
                 "adresse" => [
+                    "adresseExiste" => $adresseExiste,
                     "idAdresse" => $newPersonne->getAdresse()->getId(),
                     "nomRue" => $newPersonne->getAdresse()->getNomRue(),
                     "numRue" => $newPersonne->getAdresse()->getNumRue(),
@@ -156,7 +155,7 @@ class PersonnesController extends AbstractController
         if($request->isXmlHttpRequest()) {
             $formAdress = $this->createForm(AdressesType::class, null);
             $formPersonne = $this->createForm(PersonnesType::class, null);
-
+            $adresseExiste = true;
             $data = $this->getJson($request);
             $em = $this->getDoctrine()->getManager();
 
@@ -173,7 +172,7 @@ class PersonnesController extends AbstractController
                 }
                 $em->persist($newAdresse);
                 $em->flush();
-
+                $adresseExiste = false;
                 $formPersonne->submit($data);
                 /**
                  * @var Personnes $newPersonne
@@ -211,6 +210,7 @@ class PersonnesController extends AbstractController
                 "naissance" => $oldPersonnes->getNaissance()->format('d/m/Y'),
                 "sexe" => $oldPersonnes->getSexe(),
                 "adresse" => [
+                    "adresseExiste" => $adresseExiste,
                     "idAdresse" => $oldPersonnes->getAdresse()->getId(),
                     "nomRue" => $oldPersonnes->getAdresse()->getNomRue(),
                     "numRue" => $oldPersonnes->getAdresse()->getNumRue(),
@@ -223,5 +223,80 @@ class PersonnesController extends AbstractController
         } else {
             return new JsonResponse([["fail" => "requete ajax"]], 500);
         }
+    }
+
+    /**
+     * @Route("/personnes/supprimer/{id}", name="supprimer_personne", methods={"DELETE"})
+     */
+    function supprimerPersonnes(Request $request, Personnes $personnes) {
+
+        if($request->isXmlHttpRequest()) {
+            $em = $this->getDoctrine()->getManager();
+            $id = $personnes->getId();
+            $em->remove($personnes);
+            $em->flush();
+            return new JsonResponse([['success'=> $id]]);
+        }
+        else {
+            return new JsonResponse([["fail"=> "ma requette n'est pas ajax"]]);
+        }
+    }
+    /**
+     * @Route("/personnes/filtre/ville/{id}", name="ville_filtre_personne", methods={"GET"})
+     */
+    function villeFiltrePersonnes(Request $request, Adresses $adresses = null, $rueFiltre = false, $sfDemande = false) {
+        if ($request->isXmlHttpRequest() || $sfDemande) {
+            if ($adresses == null) {
+                return $this->index($request, true);
+            }
+            /**
+             * @var Adresses $rues
+             */
+            if ($rueFiltre && $request->query->get("valueSelect") != 0) {
+                $adresses = $this->getDoctrine()->getRepository(Adresses::class)->findAdressesByVilleAndRue($adresses->getVille(), $request->query->get("nomRue"));
+            } else {
+                $adresses = $this->getDoctrine()->getRepository(Adresses::class)->findAdressesByVille($adresses->getVille());
+            }
+            $rues = [];
+            $tabRues = [];
+            $personnes = [];
+            $tabPersonnes = [];
+            $i = 0;
+            $j = 0;
+            foreach ($adresses as $adresse) {
+                $rue = [
+                    "idAdresse" => $adresse->getId(),
+                    "nomRue" => $adresse->getNomRue()
+                ];
+                $personnes[$i] = $this->getDoctrine()->getRepository(Personnes::class)->findBy(['adresse' => $adresse->getId()]);
+                foreach ($personnes[$i] as $personne) {
+                    $infoPersonne = [
+                        "id" => $personne->getId(),
+                        "nom" => $personne->getNom(),
+                        "naissance" => $personne->getNaissance()->format('d/m/Y'),
+                        "sexe" => $personne->getSexe(),
+                        "adresse" => [
+                            "idAdresse" => $adresse->getId(),
+                            "nomRue" => $adresse->getNomRue(),
+                            "numRue" => $adresse->getNumRue(),
+                            "ville" => $adresse->getVille(),
+                            "codePostal" => $adresse->getCodePostal()
+                        ]
+                    ];
+                    $tabPersonnes[$j] = $infoPersonne;
+                    $j++;
+                }
+                $tabRues[$i] = $rue;
+                $i++;
+            }
+            $tabFiltre = ["Rues" => $tabRues, "Personnes" => $tabPersonnes];
+            return new JsonResponse($tabFiltre);
+        }
+    }
+    /**
+     * @Route("/personnes/filtre/ville/{id}/rue", name="rue_filtre_personne", methods={"GET"})
+     */
+    function villeAndRueFiltrePersonnes(Request $request, Adresses $adresses = null, $rueFiltre = false) {
+        return $this->villeFiltrePersonnes($request, $adresses, true, true);
     }
 }

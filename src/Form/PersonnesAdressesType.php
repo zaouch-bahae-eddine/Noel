@@ -34,7 +34,6 @@ class PersonnesAdressesType extends AbstractType
             ->add('adresse', EntityType::class, [
                 'class' => Adresses::class,
                 'required' => false,
-                'required' => false,
             ])
             ->add('nouvelleAdresse', AdressesType::class, ['required' => false])
         ;
