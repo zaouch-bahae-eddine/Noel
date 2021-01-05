@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello CadeauxController!{% endblock %}
+
+{% block body %}
+    <!-- Table content-->
+    <table id="cadeaux">
+        <theader>
+            <tr>
+                <th>Nom</th>
+                <th>Age</th>
+                <th>Prix</th>
+                <th>Catégorie</th>
+                <th>Personnes</th>
+                <th>Modifier</th>
+                <th>Supprimer</th>
+            </tr>
+        </theader>
+        <tbody id="content">
+        </tbody>
+    </table>
+    <div id="msg-if-vide"></div>
+    <!-- /Table content-->
+{% endblock %}
+{% block javascripts %}
+<script language = "javascript">
+    //variable globale
+    var idToModif = 0;
+    //variable globale
+
+    //Fonction qui affiche dans le tableau html les donnée(adresse)
+    function afficherTableau(data){
+        $("#content").html('');
+        $("#msg-if-vide").html('');
+        if(data.length == 0){
+            let e = $('<div>Aucune adresse dans cette ville</div>');
+            $("#msg-if-vide").append(e);
+        } else{
+            for(i = 0; i < data.length; i++) {
+                ligne = data[i];
+                idModification = 'm-cadeau-' + ligne['id'];
+                idSuppression = 's-cadeau-' + ligne['id'];
+                idPersonne = 'p-cadeau-' + ligne['id'];
+                var e = $('<tr><td class="nom">' +
+                    '</td><td class="age"></td>' +
+                    '<td class="prix"></td>' +
+                    '<td class="categorie"></td>' +
+                    '<td class="personne"><a href="#" id="'+idPersonne+'">Personnes</a></td>' +
+                    ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
+                    '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                    '</tr>'
+                );
+
+                $('.nom', e).html(ligne['nom']);
+                $('.age', e).html(ligne['age']);
+                $('.prix', e).html(ligne['prix']);
+                $('.categorie', e).html(ligne['categorie']);
+
+                $("#content").append(e);
+                $('#' + idModification).click(function (event) {
+                    event.preventDefault();
+                    //modifierAdresse(event);
+                });
+                $('#' + idSuppression).click(function (event) {
+                    event.preventDefault();
+                    let idToDelete = Number(event.target.id.substring(10));
+                    //supprimer(idToDelete);
+                });
+            }
+        }
+    }
+    //Fonction qui affiche dans le tableau html les donnée(adresse)
+
+    //Afficher tableau
+    $(document).ready(function(){
+        $.ajax({
+            url: '/cadeaux',
+            type: 'GET',
+            dataType: 'json',
+
+            success: function(response){
+                afficherTableau(response);
+            },
+            error: function () {
+                console.log('afficher tableau');
+            }
+        });
+    });
+    </script>
+{% endblock %}
