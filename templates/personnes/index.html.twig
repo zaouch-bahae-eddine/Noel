@@ -90,6 +90,21 @@
         });
     //Display select hide sous formulaire
 
+    //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
+    function getNameInput(inputName) {
+        let t = inputName.split("");
+        let prefix = '';
+        for (i = 0; i < t.length; i++) {
+            if(t[i] != "[" && t[i] != "]"){
+                prefix += t[i];
+            } else if(t[i] == "["){
+                prefix = '';
+            }
+        }
+        return prefix;
+    }
+    //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
+
     //Remplire le select du filtre ville
         function villePopulate() {
             $("#filtre-ville").html('<option value="0" selected="selected">Toutes les villes</option>');
@@ -395,20 +410,5 @@
             });
         });
     //Modifier Personne
-
-    //Return le nom des inpute de symfony exemple (adresse[nom] => nom)
-        function getNameInput(inputName) {
-            let t = inputName.split("");
-            let prefix = '';
-            for (i = 0; i < t.length; i++) {
-                if(t[i] != "[" && t[i] != "]"){
-                    prefix += t[i];
-                } else if(t[i] == "["){
-                    prefix = '';
-                }
-            }
-            return prefix;
-        }
-    //Return le nom des inpute de symfony exemple (adresse[nom] => nom)
 </script>
 {% endblock %}

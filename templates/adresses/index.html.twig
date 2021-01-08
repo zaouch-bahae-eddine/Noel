@@ -142,7 +142,6 @@
         $("#adressFormAjouter").on("submit", function (event) {
             event.preventDefault();
             var data = {};
-            console.log($(this).serializeArray());
             $(this).serializeArray().forEach(obj=>{
                 console.log(obj.name);
                 console.log(obj.value);
@@ -164,8 +163,6 @@
 
                 success: function(response){
                     $("#adressFormAjouter")[0].reset();
-                    console.log("success: id: " + response[0]["success"] + data);
-                    console.log(data);
                     if(response[0]["success"]>0){
                         var e = $('<tr><td class="nomRue">' +
                             '</td><td class="numRue"></td>' +
