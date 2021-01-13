@@ -67,6 +67,8 @@
     <div id="msg-if-vide"></div>
     <div id="adresse">
     </div>
+    <div id="personnes-cadeux">
+    </div>
     <!-- /Table content-->
 {% endblock %}
 {% block javascripts %}
@@ -104,6 +106,46 @@
         return prefix;
     }
     //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
+
+    //
+        function cadeauxSouhaites(idPersonne) {
+            $.ajax({
+                url: '/personnes/'+idPersonne+'/cadeaux',
+                type: 'GET',
+
+                success: function (response) {
+                    $('#personnes-cadeux').html('');
+
+                    response.forEach(function (cadeau) {
+                        let idSupprimer = 's-cadeau-personne-'+ cadeau["idCadeau"];
+                        let idModifier = 's-cadeau-personne-'+ cadeau["idCadeau"];
+                        $('#personnes-cadeux').append("<li>" +
+                            "Cadeau: " + cadeau["nom"] +
+                            " Age: "+ cadeau["age"] +
+                            " Prix: "+cadeau["prix"]+"$"+
+                            " Categorie: "+cadeau["categorie"]+ " <a href='' id=\""+idSupprimer+"\">Supprimer</a></li>");
+                        $('#'+ idSupprimer).on('click', function (e) {
+                            e.preventDefault();
+                            $.ajax({
+                                url: '/personnes/'+idPersonne+'/cadeaux/'+cadeau["idCadeau"],
+                                type: 'DELETE',
+
+                                success: function (response) {
+                                    $('#'+ idSupprimer).closest('li').remove();
+                                },
+                                error: function (response) {
+                                    console.log('[prob] cadeauxSouhaites(idPersonne)');
+                                }
+                            })
+                        });
+                    })
+                },
+                error: function (response){
+                    console.log("[Problem] cadeauxSouhaites(idPersonne)")
+                }
+            });
+        }
+    //
 
     //Remplire le select du filtre ville
         function villePopulate() {
@@ -212,6 +254,7 @@
                 $("#content").html('');
             }
             if(data.length == 0){
+                $("#msg-if-vide").html('');
                 let e = $('<div>Aucune personne à afficher</div>');
                 $("#msg-if-vide").append(e);
             } else{
@@ -252,6 +295,11 @@
                         event.preventDefault();
                         let idToDelete = Number(event.target.id.substring(11));
                         supprimer(idToDelete);
+                    });
+                    $('#' + idCadeau).click(function (event) {
+                        event.preventDefault();
+                        let idPersonne = Number(event.target.id.substring(11));
+                        cadeauxSouhaites(idPersonne);
                     });
                 }
             }

@@ -49,7 +49,7 @@ class CadeauxController extends AbstractController
 
     }
     /**
-     * @Route("/cadeaux/ajouter/", name="ajouter_cadeaux", methods={"POST"})
+     * @Route("/cadeaux/ajouter", name="ajouter_cadeaux", methods={"POST"})
      */
     public function ajouterCadeaux(Request $request, ValidatorInterface $validator) {
         if( $request->isXmlHttpRequest()){
@@ -69,7 +69,7 @@ class CadeauxController extends AbstractController
         }
     }
     /**
-     * @Route("/cadeaux/modifier/{id}", name="ajouter_cadeaux", methods={"POST"})
+     * @Route("/cadeaux/modifier/{id}", name="modifier_cadeaux", methods={"POST"})
      */
     public function modifierCadeau(Request $request, Cadeaux $cadeau, ValidatorInterface $validator)
     {

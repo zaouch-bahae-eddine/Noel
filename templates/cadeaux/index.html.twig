@@ -48,11 +48,14 @@
     <!-- /Table content-->
 {% endblock %}
 {% block javascripts %}
+    <script src="{{ asset('js/crudCadeaux.js') }}"></script>
+
 <script language = "javascript">
     //variable globale
     var idToModif = 0;
     //variable globale
-
+    ajouterCadeauEvent('cadeauxFormAjout');
+    modifierCadeauEvent('cadeauxFormModifier');
     // Retourn personnes d'un cadeau
     function getPersonnesOfCadeau(idCadeau) {
         $.ajax({
@@ -70,44 +73,6 @@
             }
         })
     }
-    // Retourn personnes d'un cadeau
-
-    //Fonction remplis le formulaire apartir des lignes du tableau
-    function modifierCadeau(event){
-        idToModif = Number(event.target.id.substring(9));
-        let tr = $('#' + event.target.id).closest('tr');
-        let idCategorie = $('.categorie', tr).attr('id').substring(9);
-        $("#cadeauxFormModifier #cadeaux_nom").val($('.nom', tr).text());
-        $("#cadeauxFormModifier #cadeaux_age").val($('.age', tr).text());
-        $("#cadeauxFormModifier #cadeaux_prix").val($('.prix', tr).text());
-        $("#cadeauxFormModifier #cadeaux_categorie option[value=\""+idCategorie+"\"]").attr('selected', true);
-    }
-    //Fonction remplis le formulaire apartir des lignes du tableau
-
-    //Fonction supprimer ligne du tableau a partir de son id
-    function supprimerCadeauFromTable(id){
-        $('#s-cadeau-' +id).closest('tr').remove();
-    }
-    //Fonction supprimer ligne du tableau a partir de son id
-
-    //supprimer
-    function supprimer(idToDelete){
-        $.ajax({
-            url: '/cadeaux/supprimer/'+idToDelete,
-            type: 'DELETE',
-            async: true,
-
-            success: function (response) {
-                //Effacer la ligne dans le tableau html
-                supprimerCadeauFromTable(response[0]["success"]);// response[0]["success"] est l'id du cadeau supprimmé
-            },
-            error: function (response) {
-                console.log(response.responseJSON[0]["fail"]);
-            }
-        });
-    }
-    //supprimer
-
     //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
     function getNameInput(inputName) {
         let t = inputName.split("");
@@ -155,7 +120,7 @@
                 $("#content").append(e);
                 $('#' + idModification).click(function (event) {
                     event.preventDefault();
-                    modifierCadeau(event);
+                    modifierCadeau(event, 'cadeauxFormModifier');
                 });
                 $('#' + idSuppression).click(function (event) {
                     event.preventDefault();
@@ -172,7 +137,7 @@
     }
     //Fonction qui affiche dans le tableau html les donnée(adresse)
 
-    //Afficher tableau
+    //Afficher cadeaux
     $(document).ready(function(){
         $.ajax({
             url: '/cadeaux',
@@ -186,111 +151,8 @@
                 console.log('afficher tableau');
             }
         });
-
-        //Ajouter
-        $("#cadeauxFormAjout").on("submit", function (event) {
-            event.preventDefault();
-            var data = {};
-            console.log($(this).serializeArray());
-            $(this).serializeArray().forEach(obj=>{
-                let name = getNameInput(obj.name);
-                let value = obj.value || '';
-                if (data[name]) {
-                    if (!Array.isArray(data[name])) {
-                        data[name] = [data[name]];
-                    }
-                    data[name].push(value);
-                } else {
-                    data[name] = value;
-                }
-            });
-            $.ajax({
-                url: '/cadeaux/ajouter/',
-                type: 'POST',
-                data: JSON.stringify(data),
-
-                success: function(response){
-                    $("#cadeauxFormAjout")[0].reset();
-                    if(response[0]["success"]>0){
-                        idCategorie = 'c-cadeau-'+data['categorie'];
-                        idModification = 'm-cadeau-' + response[0]["success"];
-                        idSuppression = 's-cadeau-' + response[0]["success"];
-                        idPersonne = 'p-cadeau-' + response[0]["success"];
-                        var e = $('<tr><td class="nom">' +
-                            '</td><td class="age"></td>' +
-                            '<td class="prix"></td>' +
-                            '<td class="categorie" id="'+idCategorie+'"></td>' +
-                            '<td class="personne"><a href="#" id="'+idPersonne+'">Personnes</a></td>' +
-                            ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
-                            '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
-                            '</tr>'
-                        );
-
-                        $('.nom', e).html(data['nom']);
-                        $('.age', e).html(data['age']);
-                        $('.prix', e).html(data['prix']);
-                        $('.categorie', e).html($("#adressFormAjouter #cadeaux_categorie option[value ="+data['categorie']+"]").text());
-
-                        $("#content").append(e);
-                        $('#' + idModification).click(function (event) {
-                            event.preventDefault();
-                            modifierCadeau(event);
-                        });
-                        $('#' + idSuppression).click(function (event) {
-                            event.preventDefault();
-                            let idToDelete = Number(event.target.id.substring(9));
-                            supprimer(idToDelete);
-                        });
-                    }
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    console.log("[Problem]: Ajouter cadeaux");
-                }
-            });
-        });
-        //Ajouter
-
-        //Modifier Personne
-        $("#cadeauxFormModifier").on("submit", function (event) {
-            event.preventDefault();
-            var data = {};
-            //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
-            $(this).serializeArray().forEach(obj=>{
-                let name = getNameInput(obj.name);
-                let value = obj.value || '';
-                if (data[name]) {
-                    if (!Array.isArray(data[name])) {
-                        data[name] = [data[name]];
-                    }
-                    data[name].push(value);
-                } else {
-                    data[name] = value;
-                }
-            });
-            console.log(JSON.stringify(data));
-            $.ajax({
-                url: "/cadeaux/modifier/"+idToModif,
-                type: 'POST',
-                dataType: 'json',
-                async: true,
-                data: JSON.stringify(data),
-
-                success: function (response) {
-                    let id = response[0]['success'];
-                    if(id == idToModif){
-                        tr = $('#m-cadeau-'+id).closest("tr");
-                        $('.nom',tr).html(data['nom']);
-                        $('.age',tr).html(data['age']);
-                        $('.prix',tr).html(data['prix']);
-                        $('.categorie',tr).html($("#cadeauxFormModifier #cadeaux_categorie option[value=\""+data['categorie']+"\"]").text());
-                    }
-                },
-                error: function (xhr, status, errorThrown) {
-                    console.log("[probleme]: modifier cadeaux");
-                }
-            });
-        });
-        //Modifier Personne
+        //afficher cadeaux
     });
     </script>
+
 {% endblock %}

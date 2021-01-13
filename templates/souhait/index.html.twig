@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello SouhaitController!{% endblock %}
+
+{% block body %}
+    <h1>Cadeaux pour les souhaits</h1>
+    <!-- Table content-->
+    <table id="souhait">
+        <theader>
+            <tr>
+                <th>Nom</th>
+                <th>Age</th>
+                <th>Prix</th>
+                <th>Catégorie</th>
+                <th>Ajouter</th>
+            </tr>
+        </theader>
+        <tbody id="content">
+        </tbody>
+    </table>
+    <div id="msg-if-vide"></div>
+    <div id="personnes-cadeux">
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function() {
+          $.ajax({
+            url: '/souhait/cadeaux',
+            type: 'GET',
+
+            success: function(response) {
+                let i = 0;
+                let data = Object.values(response);
+                data.forEach(function(cadeau) {
+                    let idAjout = 'a-ajout-' + cadeau["idCadeau"];
+                    let idAnnuler = 'a-annuller-' + cadeau["idCadeau"];
+                    if(cadeau['isIn']){
+                        img = '<img src="{{ asset('icones/remove.png') }}" />';
+                    } else {
+                        img = '<img src="{{ asset('icones/plus.png') }}" />';
+                    }
+                    let tr = '<tr>' +
+                    '<td>'+cadeau["nom"]+'</td>' +
+                    '<td>'+cadeau["age"]+'</td>' +
+                    '<td>'+cadeau["prix"]+'</td>' +
+                    '<td>'+cadeau["categorie"]+'</td>' +
+                    '<td><a href="" id="'+idAjout+'">'+ img +' </a></td>' +
+                    '</tr>'
+                    $('#content').append(tr);
+
+                    $('#' + idAjout).on('click', function(event) {
+                        event.preventDefault();
+                        let imgSrc = $('#' +idAjout +' img').attr('src');
+                        if (imgSrc != '/icones/plus.png') {
+                            //Ajax supprimer à la liste des souhaite
+                            $.ajax({
+                                url: '/souhait/supprimer/'+cadeau["idCadeau"],
+                                type: 'POST',
+
+                                success: function(response) {
+                                  $('#' +idAjout +' img').attr('src', "{{ asset('icones/plus.png') }}");
+                                },
+                                error: function(response) {
+                                  console.log('[prob] img supp persiste!');
+                                }
+                            });
+                        } else {
+                            //Ajax ajouter à la liste des souhaite
+                            $.ajax({
+                                url: '/souhait/ajouter/'+cadeau["idCadeau"],
+                                type: 'POST',
+
+                                success: function(response) {
+                                  $('#' +idAjout +' img').attr('src', "{{ asset('icones/remove.png') }}");
+                                },
+                                error: function(response) {
+                                  console.log('[prob] img ajout persiste!');
+                                }
+                            });
+                        }
+                    });
+                })
+            },
+            error: function(response) {
+                console.log('[prob]  $(document).ready(function() {...}')
+            }
+          });
+        });
+    </script>
+{% endblock %}

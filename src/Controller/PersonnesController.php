@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Adresses;
+use App\Entity\Cadeaux;
 use App\Entity\Personnes;
 use App\Form\AdressesType;
 use App\Form\PersonnesAdressesType;
@@ -298,5 +299,39 @@ class PersonnesController extends AbstractController
      */
     function villeAndRueFiltrePersonnes(Request $request, Adresses $adresses = null, $rueFiltre = false) {
         return $this->villeFiltrePersonnes($request, $adresses, true, true);
+    }
+    /**
+     * @Route("/personnes/{id}/cadeaux", name="cadeaux_personne", methods={"GET"})
+     */
+    function cadeauxDePersonnes(Request $request, Personnes $personne) {
+        if($personne) {
+            $cadeaux = $personne->getCadeaux();
+            $tabCadeaux = [];
+            $i = 0;
+            foreach ($cadeaux as $cadeau) {
+                $tabCadeaux[$i] = [
+                    "idCadeau" => $cadeau->getId(),
+                    "nom" => $cadeau->getNom(),
+                    "age" => $cadeau->getAge(),
+                    "prix" => $cadeau->getPrix(),
+                    "categorie" =>$cadeau->getCategorie()->getNom()
+                ];
+            }
+            return new JsonResponse($tabCadeaux, 200);
+        } else {
+            return new JsonResponse(["fail" => "personne inexistante!"], 401);
+        }
+    }
+    /**
+     * @Route("/personnes/{personne}/cadeaux/{cadeaux}", name="supprimer_cadeaux_personne", methods={"DELETE"})
+     */
+    function supprimerCadeauxDePersonnes(Request $request, Personnes $personne, Cadeaux $cadeaux) {
+        if($personne){
+            $personne->removeCadeaux($cadeaux);
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+            return $this->json(["success" => "cadeau supprimée"]);
+        }
+        return $this->json(["fail" => "personne inexistante"]);
     }
 }
