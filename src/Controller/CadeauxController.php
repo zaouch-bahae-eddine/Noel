@@ -122,16 +122,27 @@ class CadeauxController extends AbstractController
      */
     public function personnesCadeau(Request $request, Cadeaux $cadeau, ValidatorInterface $validator)
     {
-        if (true || $request->isXmlHttpRequest()){
+        if ($request->isXmlHttpRequest()){
             if ($cadeau != null) {
                 $personnes = $cadeau->getPersonnes();
                 $tabPersonne = [];
                 $i = 0;
+                $nbHomme = 0;
+                $nbFemme = 0;
                 foreach ($personnes as $personne){
                     $tabPersonne[$i]= ["nom" =>$personne->getNom()];
-                    $i++;
+                    if($personne->getSexe() == 'Homme') {
+                        $nbHomme++;
+                    }else {
+                        $nbFemme++;
+                    }
+                        $i++;
                 }
-                return new JsonResponse($tabPersonne);
+                $tabPersonneStatSexe = [
+                    "Personne" => $tabPersonne,
+                    "statSexe" => ["Homme" => $nbHomme, "Femme" => $nbFemme]
+                ];
+                return new JsonResponse($tabPersonneStatSexe);
             }else {
                 return new JsonResponse([["fail" => "cadeau non trouvable"]], 404);
             }

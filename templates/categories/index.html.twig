@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello CategoriesController!{% endblock %}
+
+{% block body %}
+    <table id="Categories">
+        <theader>
+            <tr>
+                <th>Nom</th>
+                <th>Moyennes des prix</th>
+                <th>Modifier</th>
+                <th>Supprimer</th>
+            </tr>
+        </theader>
+        <tbody id="content">
+        </tbody>
+    </table>
+
+{% endblock %}
+{% block javascripts %}
+<script>
+    function afficherTableau(data){
+        $("#content").html('');
+        $("#msg-if-vide").html('');
+        if(data.length == 0){
+            let e = $('<div>Aucune categorie </div>');
+    $       ("#msg-if-vide").append(e);
+        } else{
+            for(i = 0; i < data.length; i++) {
+                ligne = data[i];
+                idModification = 'm-categorie-' + ligne['id'];
+                idSuppression = 's-categorie-' + ligne['id'];
+                var e = $('<tr><td class="nom">' +
+                    '</td><td class="Moyenne"></td>' +
+                ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
+                '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                '</tr>'
+                );
+
+                $('.nom', e).html(ligne['nom']);
+                $('.moyenne', e).html(ligne['moyenne']);
+
+                $("#content").append(e);
+                $('#' + idModification).click(function (event) {
+                event.preventDefault();
+                modifierCadeau(event, 'cadeauxFormModifier');
+                });
+                $('#' + idSuppression).click(function (event) {
+                event.preventDefault();
+                let idToDelete = Number(event.target.id.substring(12));
+                supprimer(idToDelete);
+                });
+
+    }
+    }
+    }
+</script>
+{% endblock %}

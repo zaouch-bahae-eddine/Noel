@@ -4,6 +4,10 @@
 
 {% block body %}
     <h1>Cadeaux pour les souhaits</h1>
+    <div id="listeCadeaux">
+        <button id="mesCadeaux">Mes souhaits</button>
+        <button id="tousCadeaux">Tous les cadeaux</button>
+    </div>
     <!-- Table content-->
     <table id="souhait">
         <theader>
@@ -20,9 +24,13 @@
     </table>
     <div id="msg-if-vide"></div>
     <div id="personnes-cadeux">
+
+    </div>
+
 {% endblock %}
 {% block javascripts %}
     <script>
+
         $(document).ready(function() {
           $.ajax({
             url: '/souhait/cadeaux',
@@ -34,12 +42,15 @@
                 data.forEach(function(cadeau) {
                     let idAjout = 'a-ajout-' + cadeau["idCadeau"];
                     let idAnnuler = 'a-annuller-' + cadeau["idCadeau"];
+                    let classTrIsIn = '';
                     if(cadeau['isIn']){
                         img = '<img src="{{ asset('icones/remove.png') }}" />';
+                        classTrIsIn = 'monCadeau';
                     } else {
                         img = '<img src="{{ asset('icones/plus.png') }}" />';
+                        classTrIsIn = 'cadeau';
                     }
-                    let tr = '<tr>' +
+                    let tr = '<tr class="'+classTrIsIn+'">' +
                     '<td>'+cadeau["nom"]+'</td>' +
                     '<td>'+cadeau["age"]+'</td>' +
                     '<td>'+cadeau["prix"]+'</td>' +
@@ -59,6 +70,8 @@
 
                                 success: function(response) {
                                   $('#' +idAjout +' img').attr('src', "{{ asset('icones/plus.png') }}");
+                                  $('#' + idAjout).closest('tr').attr('class', 'cadeau');
+                                  $('#' + idAjout).closest('tr').css('visibility', 'collapse');
                                 },
                                 error: function(response) {
                                   console.log('[prob] img supp persiste!');
@@ -72,6 +85,7 @@
 
                                 success: function(response) {
                                   $('#' +idAjout +' img').attr('src', "{{ asset('icones/remove.png') }}");
+                                    $('#' + idAjout).closest('tr').attr('class', 'monCadeau');
                                 },
                                 error: function(response) {
                                   console.log('[prob] img ajout persiste!');
@@ -85,6 +99,16 @@
                 console.log('[prob]  $(document).ready(function() {...}')
             }
           });
+        });
+        $('#mesCadeaux').on('click', function(){
+            $('.cadeau').each(function () {
+                $(this).css('visibility', 'collapse');
+            });
+        });
+        $('#tousCadeaux').on('click', function(){
+            $('.cadeau').each(function () {
+                $(this).css('visibility', 'visible');
+            });
         });
     </script>
 {% endblock %}

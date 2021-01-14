@@ -44,12 +44,16 @@
         <ul>
 
         </ul>
+        <div class="chartSexe">
+            <canvas id="Chart"></canvas>
+        </div>
     </div>
+
     <!-- /Table content-->
 {% endblock %}
 {% block javascripts %}
     <script src="{{ asset('js/crudCadeaux.js') }}"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script language = "javascript">
     //variable globale
     var idToModif = 0;
@@ -64,9 +68,11 @@
 
             success: function (response) {
                 $('#personnes-cadeux ul').html('');
-                response.forEach(function (personne) {
+                response["Personne"].forEach(function (personne) {
                     $('#personnes-cadeux ul').append('<li>'+personne["nom"]+'</li>');
                 });
+                console.log([response["statSexe"]["Femme"],response["statSexe"]["Homme"]]);
+                DessinerChartSexe([response["statSexe"]["Femme"],response["statSexe"]["Homme"]]);
             },
             error: function (response) {
                 console.log(response.responseJSON[0]["fail"]);
@@ -136,6 +142,26 @@
         }
     }
     //Fonction qui affiche dans le tableau html les donnée(adresse)
+
+    //chart Dessin
+    function DessinerChartSexe(tabStatSex){
+        var ctx = document.getElementById('Chart').getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'doughnut',
+            // The data for our dataset
+            data: {
+                labels: ['Femme', 'Homme'],
+                datasets: [{
+                    backgroundColor: ['#ec5972', '#6259ec'],
+                    data: tabStatSex,
+                }]
+            },
+            // Configuration options go here
+            options: {}
+        });
+    }
+    //chart Dessin
 
     //Afficher cadeaux
     $(document).ready(function(){

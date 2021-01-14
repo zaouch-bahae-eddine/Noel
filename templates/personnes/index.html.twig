@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PersonnesController!{% endblock %}
+{% block title %}Gestion des Personnes{% endblock %}
 
 {% block body %}
     <div class="filtre">
@@ -48,6 +48,9 @@
     {{ form_end(personnesFormModifier) }}
     <!--  Formulaire de modifier -->
     <hr/>
+    <a href="" id="securiteAge">Liste des personnes souhaitant des cadeaux inadaptès à leurs age</a>
+    <a href="" id="annulerSecurite">Annuler</a>
+    <hr/>
     <!-- Table content-->
     <table id="personnes">
         <theader>
@@ -91,7 +94,34 @@
             $('.select-adresse').css("display", "block");
         });
     //Display select hide sous formulaire
-
+    //Filtre des personnes avec un age inferieur à l'age de possibilité du cadeau
+    $('#securiteAge').on('click', function (event) {
+        event.preventDefault();
+        $.ajax({
+            url: '/personnes/security',
+            type: 'GET',
+            success: function (response) {
+                $('#content tr').each(function () {
+                    $(this).css('visibility', 'collapse');
+                });
+                response.forEach(function (personne) {
+                    $('#s-personne-'+personne["id"]).closest('tr').css('visibility', 'visible');
+                });
+            },
+            error: function (response) {
+                console.log('[probleme] personnes avec un age cadeau');
+            }
+        })
+    })
+    //Annuler filtre de security
+    $('#annulerSecurite').on('click', function (event) {
+        event.preventDefault();
+        $('#content tr').each(function () {
+            $(this).css('visibility', 'visible');
+        });
+    })
+    //Annuler filtre de security
+    //Filtre des personnes avec un age inferieur à l'age de possibilité du cadeau
     //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
     function getNameInput(inputName) {
         let t = inputName.split("");

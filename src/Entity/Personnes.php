@@ -132,4 +132,10 @@ class Personnes
     public function getNouvelleAdresse(){
         return $this->getAdresse();
     }
+    public function getAge(){
+        //$naissanceObj = new \DateTime($this->naissance->format('d-m-Y'));
+        $now = new \DateTime();
+        $age = $now->diff($this->naissance)->y;
+        return $age;
+    }
 }

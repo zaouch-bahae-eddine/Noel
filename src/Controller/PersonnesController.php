@@ -316,6 +316,7 @@ class PersonnesController extends AbstractController
                     "prix" => $cadeau->getPrix(),
                     "categorie" =>$cadeau->getCategorie()->getNom()
                 ];
+                $i++;
             }
             return new JsonResponse($tabCadeaux, 200);
         } else {
@@ -333,5 +334,24 @@ class PersonnesController extends AbstractController
             return $this->json(["success" => "cadeau supprimée"]);
         }
         return $this->json(["fail" => "personne inexistante"]);
+    }
+    /**
+     * @Route("/personnes/security", name="security_cadeaux_personne", methods={"GET"})
+     */
+    function securityCadeauxDePersonnes(Request $request)
+    {
+        $personnes = $this->getDoctrine()->getRepository(Personnes::class)->findAll();
+        $tabPersonneSecurity = [];
+        $i = 0;
+        foreach ($personnes as $personne) {
+            foreach ($personne->getCadeaux() as $cadeau) {
+                if($personne->getAge() < $cadeau->getAge()){
+                    $tabPersonneSecurity[$i] = ["id" => $personne->getId()];
+                    $i++;
+                    break;
+                }
+            }
+        }
+        return $this->json($tabPersonneSecurity);
     }
 }

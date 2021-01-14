@@ -22,20 +22,18 @@ class PersonnesRepository extends ServiceEntityRepository
     // /**
     //  * @return Personnes[] Returns an array of Personnes objects
     //  */
-    /*
-    public function findByExampleField($value)
+/*
+    public function personneAvecAgeInferieur()
     {
+        $now = new \DateTime();
         return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('p.age < p.cadeaux.age')
             ->orderBy('p.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
-    }
-    */
-
+    }*/
     /*
     public function findOneBySomeField($value): ?Personnes
     {
