@@ -3,6 +3,20 @@
 {% block title %}Hello CategoriesController!{% endblock %}
 
 {% block body %}
+
+    <!-- Form Ajout-->
+    {{ form_start(categoriesFormAjouter, {'attr' : { 'id': 'categoriesFormAjout'}}) }}
+        {{ form_row(categoriesFormAjouter.nom) }}
+        <button type="submit">Ajouter</button>
+    {{ form_end(categoriesFormAjouter) }}
+    <!-- Form Ajout-->
+    <hr/>    <!-- Form modifier-->
+    {{ form_start(categoriesFormModifier, {'attr' : { 'id': 'categoriesFormModifier'}}) }}
+        {{ form_row(categoriesFormModifier.nom) }}
+        <button type="submit">Modifier</button>
+    {{ form_end(categoriesFormModifier) }}
+    <!-- Form modifier-->
+    <hr/>
     <table id="Categories">
         <theader>
             <tr>
@@ -19,22 +33,28 @@
 {% endblock %}
 {% block javascripts %}
 <script>
+    //variables globales
+        var idToModif = 0;
+    //variables globales
+
+    //function afficher categories
     function afficherTableau(data){
         $("#content").html('');
         $("#msg-if-vide").html('');
         if(data.length == 0){
             let e = $('<div>Aucune categorie </div>');
-    $       ("#msg-if-vide").append(e);
+            $("#msg-if-vide").append(e);
         } else{
+
             for(i = 0; i < data.length; i++) {
                 ligne = data[i];
                 idModification = 'm-categorie-' + ligne['id'];
                 idSuppression = 's-categorie-' + ligne['id'];
                 var e = $('<tr><td class="nom">' +
-                    '</td><td class="Moyenne"></td>' +
-                ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
-                '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
-                '</tr>'
+                    '</td><td class="moyenne"></td>' +
+                    '<td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
+                    '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                    '</tr>'
                 );
 
                 $('.nom', e).html(ligne['nom']);
@@ -43,16 +63,79 @@
                 $("#content").append(e);
                 $('#' + idModification).click(function (event) {
                 event.preventDefault();
-                modifierCadeau(event, 'cadeauxFormModifier');
+                    modifierCategorie(event);
                 });
                 $('#' + idSuppression).click(function (event) {
                 event.preventDefault();
                 let idToDelete = Number(event.target.id.substring(12));
                 supprimer(idToDelete);
                 });
+            }
+        }
+    }
+    //function afficher categories
 
+    //Fonction: Modifier categories
+    function modifierCategorie(event) {
+        idToModif = Number(event.target.id.substring(12));
+
+        let tr = $('#' + event.target.id).closest('tr');
+        $("#categoriesFormModifier #categrories_nom").val($('.nom', tr).text());
     }
+    //Fonction: Modifier categories
+
+    //supp
+    function supprimer(idToDelete){
+        $.ajax({
+            url: '/categories/supprimer/' + idToDelete,
+            type: 'DELETE',
+
+            success: function (response) {
+                    $("#s-categorie-"+idToDelete).closest('tr').remove();
+            },
+            error: function (msg) {
+                console.log(msg.responseJSON['fail']);
+            }
+        })
     }
-    }
+    //supp
+
+    // envoyer les modifications au serveur
+        $('#categoriesFormModifier').on('submit', function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/categories/modifier/'+idToModif,
+                type: 'POST',
+                data: JSON.stringify({nom: $('#categoriesFormModifier #categrories_nom').val()}),
+                success: function (response) {
+                        tr = $('#m-categorie-'+idToModif).closest('tr');
+                        $('.nom', tr).html($('#categoriesFormModifier #categrories_nom').val());
+                },
+                error: function () {
+                    console.log('[prob]  les modifications au serveur');
+                }
+            });
+        });
+    //envoyer les modifications au serveur
+
+
+
+    $(document).ready(function(){
+        //afficher categorie
+        $.ajax({
+            url: '/categories',
+            type: 'GET',
+            dataType: 'json',
+
+            success: function(response){
+                afficherTableau(response);
+            },
+            error: function () {
+                console.log('afficher tableau');
+            }
+        });
+        //afficher categorie
+    });
 </script>
+
 {% endblock %}
