@@ -22,18 +22,25 @@ class PersonnesRepository extends ServiceEntityRepository
     // /**
     //  * @return Personnes[] Returns an array of Personnes objects
     //  */
-/*
-    public function personneAvecAgeInferieur()
+
+    public function findPersoneFiltreAge($min, $max)
     {
-        $now = new \DateTime();
+        $min = new \DateTime($this->age($min));
+        $max = new \DateTime($this->age($max));
         return $this->createQueryBuilder('p')
-            ->andWhere('p.age < p.cadeaux.age')
+            ->andWhere('p.naissance >= :max')
+            ->setParameter('max', $max->format('Y-m-d H:i:s'))
+            ->andWhere('p.naissance <= :min')
+            ->setParameter('min', $min->format('Y-m-d H:i:s'))
             ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
-    }*/
+
+    }
+    private function age($age){
+        return date('Y', strtotime($age . ' years ago')).'-01-01';
+    }
     /*
     public function findOneBySomeField($value): ?Personnes
     {

@@ -17,6 +17,13 @@
     {{ form_end(categoriesFormModifier) }}
     <!-- Form modifier-->
     <hr/>
+    <form id="filtre-age">
+        <label for="age-min">Age minimum</label>
+        <input type="text" id="age-min" placeholder="Minimum d'age inclus">
+        <label for="age-max">Age maximum</label>
+        <input type="text" id="age-max" placeholder="Maximum d'age inclus">
+        <button type="submit">Filtre</button>
+    </form>
     <table id="Categories">
         <theader>
             <tr>
@@ -24,6 +31,7 @@
                 <th>Moyennes des prix</th>
                 <th>Modifier</th>
                 <th>Supprimer</th>
+                <th>Pourcentage des prix des cadeaux</th>
             </tr>
         </theader>
         <tbody id="content">
@@ -37,6 +45,43 @@
         var idToModif = 0;
     //variables globales
 
+    //
+        $('#filtre-age').on('submit', function (event) {
+            event.preventDefault();
+            let ageMin = $(this).find('#age-min').val();
+            let ageMax = $(this).find('#age-max').val();
+            $.ajax({
+                url: '/categories/filtre/age',
+                type: 'GET',
+                data: {min: ageMin, max:ageMax},
+                success: function (response) {
+                    afficherTableau(response);
+                },
+                error: function (response) {
+                    console.log('[Prob] $(\'#filtre-age\').on(\'submit\'');
+                }
+            })
+        })
+    //
+
+    // changement par pourcentage des prix des cadeaux
+        function changementPourcentageCadeaux(pourcentage, id, type) {
+            $.ajax({
+                url: '/categories/pourcentage/' + id,
+                type: 'POST',
+                data: JSON.stringify({pourcentage: pourcentage, type: type}),
+                success: function (response) {
+                    tr = $('#m-categorie-'+id).closest('tr');
+                    $('.moyenne', tr).html(response["moyenne"]);
+                    console.log('[success] changement de pourcentage effectué');
+                },
+                error: function () {
+                    console.log('[fail] changement impossible');
+                }
+            })
+        }
+    // changement par pourcentage des prix des cadeaux
+
     //function afficher categories
     function afficherTableau(data){
         $("#content").html('');
@@ -45,7 +90,6 @@
             let e = $('<div>Aucune categorie </div>');
             $("#msg-if-vide").append(e);
         } else{
-
             for(i = 0; i < data.length; i++) {
                 ligne = data[i];
                 idModification = 'm-categorie-' + ligne['id'];
@@ -54,6 +98,13 @@
                     '</td><td class="moyenne"></td>' +
                     '<td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
                     '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                    '<td class="pourcentage">' +
+                        '<form id="formPourcentage">' +
+                            '<input type="text"/ placeholder="Pourcentage de prix">' +
+                            '<button type="submit" id="augmenter-prix">+</button>' +
+                            '<button type="submit" id="diminuer-prix">-</button>' +
+                        '</form>' +
+                    '</td>' +
                     '</tr>'
                 );
 
@@ -67,13 +118,96 @@
                 });
                 $('#' + idSuppression).click(function (event) {
                 event.preventDefault();
-                let idToDelete = Number(event.target.id.substring(12));
+                let idToDelete = ligne["id"];
                 supprimer(idToDelete);
+                });
+                $('#augmenter-prix').click(function (event) {
+                    event.preventDefault();
+                    console.log('id=>' + ligne["id"]);
+                    let pourcentage = $('#formPourcentage input').val();
+                    if(isNaN(pourcentage)){
+                        console.log('[Prob] la valeur ' + pourcentage + 'n\'est pas un nombre valid');
+                    } else {
+                        changementPourcentageCadeaux(pourcentage, ligne['id'], 'plus');
+                    }
+                });
+                $('#diminuer-prix').click(function (event) {
+                    event.preventDefault();
+                    let pourcentage = $('#formPourcentage input').val();
+                    if(isNaN(pourcentage)){
+                        console.log('[Prob] la valeur ' + pourcentage + 'n\'est pas un nombre valid');
+                    } else {
+                        changementPourcentageCadeaux(pourcentage, ligne['id'], 'moin');
+                    }
                 });
             }
         }
     }
     //function afficher categories
+
+    //Ajouter categorie
+    $("#categoriesFormAjout").on("submit", function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            url: "/categories/ajouter",
+            type: 'POST',
+            dataType: 'json',
+            async: true,
+            data: JSON.stringify({nom: $('#categoriesFormAjout #categrories_nom').val()}),
+
+            success: function (response) {
+                idModification = 'm-categorie-' + response['id'];
+                idSuppression = 's-categorie-' + response['id'];
+                let tr = '<tr>' +
+                    '<td>'+response["nom"]+'</td>' +
+                    '<td>'+response["moyenne"]+'</td>' +
+                    '<td><a href="" id = "'+idModification+'">Modifier</a></td>' +
+                    '<td><a href="" id = "'+idSuppression+'">Supprimer</a></td>' +
+                    '<td class="pourcentage">' +
+                        '<form id="formPourcentage">' +
+                            '<input type="text"/ placeholder="Pourcentage de prix">' +
+                            '<button type="submit" id="augmenter-prix">+</button>' +
+                            '<button type="submit" id="diminuer-prix">-</button>' +
+                        '</form>' +
+                    '</td>' +
+                    '</tr>';
+                $('#content').append(tr);
+                $('#' + idModification).click(function (event) {
+                    event.preventDefault();
+                    modifierCategorie(event);
+                });
+                $('#' + idSuppression).click(function (event) {
+                    event.preventDefault();
+                    let idToDelete = Number(event.target.id.substring(12));
+                    supprimer(idToDelete);
+                });
+                $('#augmenter-prix').click(function (event) {
+                    event.preventDefault();
+                    console.log('id=>' + ligne["id"]);
+                    let pourcentage = $('#formPourcentage input').val();
+                    if(isNaN(pourcentage)){
+                        console.log('[Prob] la valeur ' + pourcentage + 'n\'est pas un nombre valid');
+                    } else {
+                        changementPourcentageCadeaux(pourcentage, ligne['id'], 'plus');
+                    }
+                });
+                $('#diminuer-prix').click(function (event) {
+                    event.preventDefault();
+                    let pourcentage = $('#formPourcentage input').val();
+                    if(isNaN(pourcentage)){
+                        console.log('[Prob] la valeur ' + pourcentage + 'n\'est pas un nombre valid');
+                    } else {
+                        changementPourcentageCadeaux(pourcentage, ligne['id'], 'moin');
+                    }
+                });
+            },
+            error: function (xhr, status, errorThrown) {
+                console.log("erreur: " + errorThrown+ "status"+ status+ "xhr" + xhr);
+            }
+        });
+    });
+    //Ajouter categorie
 
     //Fonction: Modifier categories
     function modifierCategorie(event) {
@@ -83,6 +217,23 @@
         $("#categoriesFormModifier #categrories_nom").val($('.nom', tr).text());
     }
     //Fonction: Modifier categories
+    // envoyer les modifications au serveur
+    $('#categoriesFormModifier').on('submit', function (event) {
+        event.preventDefault();
+        $.ajax({
+            url: '/categories/modifier/'+idToModif,
+            type: 'POST',
+            data: JSON.stringify({nom: $('#categoriesFormModifier #categrories_nom').val()}),
+            success: function (response) {
+                tr = $('#m-categorie-'+idToModif).closest('tr');
+                $('.nom', tr).html($('#categoriesFormModifier #categrories_nom').val());
+            },
+            error: function () {
+                console.log('[prob]  les modifications au serveur');
+            }
+        });
+    });
+    //envoyer les modifications au serveur
 
     //supp
     function supprimer(idToDelete){
@@ -91,7 +242,7 @@
             type: 'DELETE',
 
             success: function (response) {
-                    $("#s-categorie-"+idToDelete).closest('tr').remove();
+                $("#s-categorie-"+idToDelete).closest('tr').remove();
             },
             error: function (msg) {
                 console.log(msg.responseJSON['fail']);
@@ -99,26 +250,6 @@
         })
     }
     //supp
-
-    // envoyer les modifications au serveur
-        $('#categoriesFormModifier').on('submit', function (event) {
-            event.preventDefault();
-            $.ajax({
-                url: '/categories/modifier/'+idToModif,
-                type: 'POST',
-                data: JSON.stringify({nom: $('#categoriesFormModifier #categrories_nom').val()}),
-                success: function (response) {
-                        tr = $('#m-categorie-'+idToModif).closest('tr');
-                        $('.nom', tr).html($('#categoriesFormModifier #categrories_nom').val());
-                },
-                error: function () {
-                    console.log('[prob]  les modifications au serveur');
-                }
-            });
-        });
-    //envoyer les modifications au serveur
-
-
 
     $(document).ready(function(){
         //afficher categorie
