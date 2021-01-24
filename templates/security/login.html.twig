@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+<form method="post">
+    {% if error %}
+        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    {% if app.user %}
+        <div class="mb-3">
+            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+        </div>
+    {% endif %}
+
+    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+    <label for="inputNom">Nom</label>
+    <input type="text" value="{{ last_username }}" name="nom" id="inputNom" class="form-control" required autofocus>
+    <label for="inputPassword">Password</label>
+    <input type="password" name="password" id="inputPassword" class="form-control" required>
+
+    <input type="hidden" name="_csrf_token"
+           value="{{ csrf_token('authenticate') }}"
+    >
+
+    {#
+        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+        See https://symfony.com/doc/current/security/remember_me.html
+
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" name="_remember_me"> Remember me
+            </label>
+        </div>
+    #}
+
+    <button class="btn btn-lg btn-primary" type="submit">
+        Sign in
+    </button>
+</form>
+    <div id="error">
+    </div>
+    <!-- Formulaire d'ajout -->
+    {{ form_start(formPersonne,{'attr': {'id': 'inscription'}}) }}
+    {{ form_row(formPersonne.nom) }}
+    {{ form_row(formPersonne.sexe) }}
+    {{ form_row(formPersonne.naissance) }}
+    {{ form_row(formPersonne.nouvelleAdresse) }}
+    <div class="adresse" style="display: none;">
+        {{ form_row(formPersonne.adresse) }}
+    </div>
+    <label for="first-mdp" >Mot de passe</label>
+    <input type="password" id="first-mdp" name="password">
+
+    <label for="second-mdp">Confirmer mot de passe</label>
+    <input type="password" id="second-mdp" name="password2">
+    <button id="ajoutButton" type="submit" >S'inscrir</button>
+    {{ form_end(formPersonne) }}
+    <!--  Formulaire d'ajout -->
+{% endblock %}
+{% block javascripts %}
+    <script>
+        //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
+        function getNameInput(inputName) {
+            let t = inputName.split("");
+            let prefix = '';
+            for (i = 0; i < t.length; i++) {
+                if(t[i] != "[" && t[i] != "]"){
+                    prefix += t[i];
+                } else if(t[i] == "["){
+                    prefix = '';
+                }
+            }
+            return prefix;
+        }
+        //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
+        $(document).ready(function () {
+            $('.js-datepicker').datepicker({
+                format : 'dd/mm/yyyy',
+                daysMin:["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"],
+                months:["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"]
+            });
+        });
+        $('#inscription').on('submit', function (e) {
+            e.preventDefault();
+
+            var data = {};
+            console.log($(this).serializeArray());
+            //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
+            $(this).serializeArray().forEach(obj=>{
+                let name = getNameInput(obj.name);
+                let value = obj.value || '';
+                if (data[name]) {
+                    if (!Array.isArray(data[name])) {
+                        data[name] = [data[name]];
+                    }
+                    data[name].push(value);
+                } else {
+                    data[name] = value;
+                }
+            });
+            if(data["password"] == data['password2']){
+                $.ajax({
+                    url: "/inscription",
+                    type: 'POST',
+                    dataType: 'json',
+                    async: true,
+                    data: JSON.stringify(data),
+
+                    success: function (response) {
+                        console.log("connected");
+                    },
+                    error: function (xhr, status, errorThrown) {
+                        console.log('[problem] inscription');
+                    }
+                });
+            } else {
+                $("#error").html('La confirmation de mot de passe n\'est pas correcte');
+            }
+            console.log(data);
+
+        })
+    </script>
+{% endblock %}

@@ -60,7 +60,7 @@ class Adresses
 
     public function setNomRue(string $nomRue): self
     {
-        $this->nomRue = $nomRue;
+        $this->nomRue = strtoupper($nomRue);
 
         return $this;
     }
@@ -96,7 +96,7 @@ class Adresses
 
     public function setVille(string $ville): self
     {
-        $this->ville = $ville;
+        $this->ville = strtoupper($ville);
 
         return $this;
     }

@@ -6,11 +6,12 @@ use App\Repository\PersonnesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=PersonnesRepository::class)
  */
-class Personnes
+class Personnes implements UserInterface
 {
     /**
      * @ORM\Id
@@ -44,6 +45,14 @@ class Personnes
      * @ORM\Column(type="date")
      */
     private $naissance;
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $password;
 
     public function __construct()
     {
@@ -137,5 +146,49 @@ class Personnes
         $now = new \DateTime();
         $age = $now->diff($this->naissance)->y;
         return $age;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+    public function getPassword()
+    {
+        return (string) $this->password;
+    }
+    public function setPassword($password)
+    {
+        return $this->password = $password;
+    }
+
+    public function getSalt()
+    {
+        // TODO: Implement getSalt() method.
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUsername(): string
+    {
+        return (string) $this->nom;
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
     }
 }

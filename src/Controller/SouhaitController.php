@@ -20,7 +20,7 @@ class SouhaitController extends AbstractController
             /**
              * @var Personnes $person
              */
-            $person = $this->getDoctrine()->getRepository(Personnes::class)->find(7);
+            $person = $this->getUser();
             $cadeaux = $this->getDoctrine()->getManager()->getRepository(Cadeaux::class)->findAll();
             $tabCadeaux = [];
             $i = 0;
@@ -55,7 +55,7 @@ class SouhaitController extends AbstractController
             /**
              * @var Personnes $person
              */
-            $person = $this->getDoctrine()->getRepository(Personnes::class)->find(7);
+            $person = $this->getUser();
             $person->addCadeaux($cadeaux);
             $em = $this->getDoctrine()->getManager();
             $em->flush();
@@ -73,7 +73,7 @@ class SouhaitController extends AbstractController
             /**
              * @var Personnes $person
              */
-            $person = $this->getDoctrine()->getRepository(Personnes::class)->find(7);
+            $person = $this->getUser();
             $person->removeCadeaux($cadeaux);
             $em = $this->getDoctrine()->getManager();
             $em->flush();

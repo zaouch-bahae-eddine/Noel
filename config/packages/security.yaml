@@ -1,0 +1,46 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\Personnes
+                property: nom
+
+    app\security\login_form_authenticator:
+        class: AppBundle\Security\LoginFormAuthenticator
+        autowire: true
+
+    encoders:
+        App\Entity\Personnes:
+            algorithm: bcrypt
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: lazy
+            provider: app_user_provider
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                # target: app_any_route
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    role_hierarchy:
+        ROLE_PERE_NOEL: [ROLE_GESTIONNAIRE_STOCK, ROLE_SECRETARIAT]
+    access_control:
+        - { path: ^/souhait, roles: ROLE_SOUHAIT }
+        - { path: ^/cadeaux, roles: ROLE_GESTIONNAIRE_STOCK }
+        - { path: ^/categories, roles: ROLE_GESTIONNAIRE_STOCK }
+        - { path: ^/personnes, roles: ROLE_SECRETARIAT }
+        - { path: ^/adresses, roles: ROLE_SECRETARIAT }
+        - { path: ^/profile, roles: ROLE_USER }

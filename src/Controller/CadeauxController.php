@@ -16,6 +16,7 @@ class CadeauxController extends AbstractController
 {
     /**
      * @Route("/cadeaux", name="cadeaux", methods={"GET"})
+     * @
      */
     public function index(Request $request)
     {
