@@ -1,63 +1,68 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Log in!{% endblock %}
-
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset("/css/indexStyle.css") }}">
+{% endblock %}
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+    <div class="indexContent">
+        <form method="post" class="login-form">
+            {% if error %}
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
-        </div>
-    {% endif %}
+            {% if app.user %}
+                <div class="mb-3">
+                    You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+                </div>
+            {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputNom">Nom</label>
-    <input type="text" value="{{ last_username }}" name="nom" id="inputNom" class="form-control" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" required>
+            <h1 class="h3 mb-3 font-weight-normal">Se connecter</h1>
+            <label for="inputNom">Nom</label>
+            <input type="text" value="{{ last_username }}" name="nom" id="inputNom" class="form-control" required autofocus>
+            <label for="inputPassword">Password</label>
+            <input type="password" name="password" id="inputPassword" class="form-control" required>
 
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
+            <input type="hidden" name="_csrf_token"
+                   value="{{ csrf_token('authenticate') }}"
+            >
 
-    {#
-        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-        See https://symfony.com/doc/current/security/remember_me.html
+            {#
+                Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+                See https://symfony.com/doc/current/security/remember_me.html
 
-        <div class="checkbox mb-3">
-            <label>
-                <input type="checkbox" name="_remember_me"> Remember me
-            </label>
-        </div>
-    #}
+                <div class="checkbox mb-3">
+                    <label>
+                        <input type="checkbox" name="_remember_me"> Remember me
+                    </label>
+                </div>
+            #}
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
-    <div id="error">
+            <button class="btn btn-lg btn-primary" type="submit">
+                Se connecter
+            </button>
+        </form>
+            <div id="error">
+            </div>
+            <!-- Formulaire d'ajout -->
+            {{ form_start(formPersonne,{'attr': {'id': 'inscription', 'class': 'login-form'}}) }}
+            {{ form_row(formPersonne.nom) }}
+            {{ form_row(formPersonne.sexe) }}
+            {{ form_row(formPersonne.naissance) }}
+            {{ form_row(formPersonne.nouvelleAdresse) }}
+            <div class="adresse" style="display: none;">
+                {{ form_row(formPersonne.adresse) }}
+            </div>
+            <label for="first-mdp" >Mot de passe</label>
+            <input type="password" id="first-mdp" name="password" class="form-control">
+
+            <label for="second-mdp">Confirmer mot de passe</label>
+            <input type="password" id="second-mdp" name="password2" class="form-control">
+            <button id="ajoutButton" type="submit" class="btn btn-lg btn-primary" >S'inscrir</button>
+            {{ form_end(formPersonne) }}
+            <!--  Formulaire d'ajout -->
     </div>
-    <!-- Formulaire d'ajout -->
-    {{ form_start(formPersonne,{'attr': {'id': 'inscription'}}) }}
-    {{ form_row(formPersonne.nom) }}
-    {{ form_row(formPersonne.sexe) }}
-    {{ form_row(formPersonne.naissance) }}
-    {{ form_row(formPersonne.nouvelleAdresse) }}
-    <div class="adresse" style="display: none;">
-        {{ form_row(formPersonne.adresse) }}
-    </div>
-    <label for="first-mdp" >Mot de passe</label>
-    <input type="password" id="first-mdp" name="password">
-
-    <label for="second-mdp">Confirmer mot de passe</label>
-    <input type="password" id="second-mdp" name="password2">
-    <button id="ajoutButton" type="submit" >S'inscrir</button>
-    {{ form_end(formPersonne) }}
-    <!--  Formulaire d'ajout -->
 {% endblock %}
 {% block javascripts %}
     <script>
@@ -110,9 +115,10 @@
 
                     success: function (response) {
                         console.log("connected");
+                        window.location.replace("{{ absolute_url(path('souhait')) }}");
                     },
                     error: function (xhr, status, errorThrown) {
-                        console.log('[problem] inscription');
+                        console.log(xhr.responseJSON["fail"]);
                     }
                 });
             } else {

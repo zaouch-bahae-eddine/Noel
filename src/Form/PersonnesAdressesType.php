@@ -17,25 +17,35 @@ class PersonnesAdressesType extends AbstractType
     {
         $sexeType = ["Homme" => "Homme", "Femme" => "Femme"];
         $builder
-            ->add('nom', TextType::class, ['required' => false])
+            ->add('nom', TextType::class, [
+                'required' => false,
+                'attr' => ['class' => 'form-control']
+                ])
             ->add('sexe', ChoiceType::class,[
                 'choices' => $sexeType,
                 'expanded' => true,
                 'label' => "Sexe",
+                'attr' => [
+                    'class' => 'form-control'
+                ]
             ])
             ->add('naissance', DateType::class,[
                 'widget' => 'single_text',
                 // prevents rendering it as type="date", to avoid HTML5 date pickers
                 'html5' => false,
                 // adds a class that can be selected in JavaScript
-                'attr' => ['class' => 'js-datepicker'],
+                'attr' => ['class' => 'js-datepicker form-control'],
                 'required' => false,
             ])
             ->add('adresse', EntityType::class, [
                 'class' => Adresses::class,
                 'required' => false,
+                'attr' => ['class' => 'form-control']
             ])
-            ->add('nouvelleAdresse', AdressesType::class, ['required' => false])
+            ->add('nouvelleAdresse', AdressesType::class, [
+                'required' => false,
+                'attr' => ['class' => 'form-control']
+            ])
         ;
     }
 

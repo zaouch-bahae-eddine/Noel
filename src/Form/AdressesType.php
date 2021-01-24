@@ -15,10 +15,26 @@ class AdressesType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('nomRue',TextType::class)
-            ->add('numRue', IntegerType::class)
-            ->add('codePostal', IntegerType::class)
-            ->add('ville', TextType::class)
+            ->add('nomRue',TextType::class, [
+                'attr' => [
+                    'class' => 'form-control'
+                ]
+            ])
+            ->add('numRue', IntegerType::class, [
+                'attr' => [
+                    'class' => 'form-control'
+                ]
+            ])
+            ->add('codePostal', IntegerType::class, [
+                'attr' => [
+                    'class' => 'form-control'
+                ]
+            ])
+            ->add('ville', TextType::class, [
+                'attr' => [
+                    'class' => 'form-control'
+                ]
+            ])
         ;
     }
 

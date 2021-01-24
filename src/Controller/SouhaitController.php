@@ -14,7 +14,7 @@ class SouhaitController extends AbstractController
     /**
      * @Route("/souhait/cadeaux", name="souhait")
      */
-    public function index(Request $request): Response
+    public function index(Request $request, $sfDemande = false): Response
     {
         if($request->isXmlHttpRequest()){
             /**
@@ -41,9 +41,7 @@ class SouhaitController extends AbstractController
             }
             return $this->json($tabCadeaux);
         } else {
-            return $this->render('souhait/index.html.twig', [
-                'Ajouter' => 'SouhaitController',
-            ]);
+            return $this->render('souhait/index.html.twig');
         }
     }
     /**

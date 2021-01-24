@@ -6,13 +6,16 @@ use App\Entity\Adresses;
 use App\Entity\Personnes;
 use App\Form\PersonnesAdressesType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SecurityController extends AbstractController
 {
@@ -49,7 +52,7 @@ class SecurityController extends AbstractController
     /**
      * @Route("/inscription", name="inscription")
      */
-    public function inscription(Request $request, UserPasswordEncoderInterface $encoder)
+    public function inscription(Request $request, UserPasswordEncoderInterface $encoder, ValidatorInterface $validator)
     {
         $data = $this->getJson($request);
         if($data["password"] != $data["password2"])
@@ -62,12 +65,15 @@ class SecurityController extends AbstractController
             'numRue' => $data["numRue"],
             'codePostal' => $data["codePostal"],
             ]);
+        $naissance = \DateTime::createFromFormat("d/m/Y", $data["naissance"]);
         $user = new Personnes();
         $user
+            ->setNaissance($naissance)
             ->setNom($data["nom"])
             ->setSexe($data["sexe"])
             ->setRoles(["ROLE_SOUHAIT"])
             ->setPassword($encoder->encodePassword($user,$data["password"]));
+
         if($adresse == null){
             $adresse = new Adresses();
             $adresse->setNomRue($data["nomRue"])
@@ -77,16 +83,20 @@ class SecurityController extends AbstractController
             $em->persist($adresse);
         }
         $user->setAdresse($adresse);
+
+        if(count($validator->validate($adresse)) >0){
+            return $this->json(['fail' => "Données de la adresse invalid"],422 );
+        }
+        if(count($validator->validate($user)) >0){
+            return $this->json(['fail' => "Données invalid"],422 );
+        }
         $em->persist($user);
         $em->flush();
-        return $this->json(["success" => "user created"]);
-        /*return $this->get('security.authentication.guard_handler')
-            ->authenticateUserAndHandleSuccess(
-                $user,
-                $request,
-                $this->get('app.security.login_form_authenticator'),
-                'main'
-            );*/
+        $token = new UsernamePasswordToken($user, null, 'main', $user->getRoles());
+        $this->container->get('security.token_storage')->setToken($token);
+        $this->container->get('session')->set('_security_main', serialize($token));
+        return $this->json(["success" => "you are connected"]);
+
     }
     /**
      * @param Request $request

@@ -1,0 +1,44 @@
+label{
+    width: 100%;
+}
+input {
+    height: 3em;
+}
+
+.btn-primary {
+    background-color: #ef4b4b;
+    border-color: #ef4b4b;
+    font-size: 18px;
+    padding: 8px 77px;
+}
+.btn-primary:hover{
+    background-color: #bf232b;
+    border-color: #bf232b;
+}
+a{
+    text-decoration: none !important;
+    color: #dedede !important;
+}
+
+.navbar.navbar-light{
+    padding: 0;
+    background-color: #da1c17;
+}
+.navbar-content{
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    margin: 0 auto;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #dedede !important;
+    font-family: cursive, sans-serif;
+}
+.userCompte img{
+    width: 45px;
+}
+.nav-title{
+
+}

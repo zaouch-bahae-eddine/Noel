@@ -1,0 +1,32 @@
+.indexContent{
+    width: 100%;
+    height: 80vh;
+    background-image: url("/img/backgroundColor.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position-y: -182px;
+}
+label{
+    width: 100%;
+    margin-left: 5px;
+}
+.login-form{
+    width: 400px;
+    background-color: aliceblue;
+    position: absolute;
+    right: 150px;
+    top: 150px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    border-radius: 16px;
+}
+#inscription div {
+    width: 100%;
+}
+div#personnes_adresses_sexe {
+    display: flex;
+    align-items: center;
+}

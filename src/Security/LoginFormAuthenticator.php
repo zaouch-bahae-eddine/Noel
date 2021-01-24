@@ -72,17 +72,16 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         $user = $this->entityManager->getRepository(Personnes::class)->findOneBy(['nom' => $credentials['nom']]);
         if (!$user) {
             // fail authentication with a custom error
-            throw new CustomUserMessageAuthenticationException('Nom d utilisateur inexistant');
+            throw new CustomUserMessageAuthenticationException('Nom d\'utilisateur inexistant');
         }
         return $user;
     }
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $this->encoder->isPasswordValid($user, $credentials['password']);
-        // Check the user's password or other credentials and return true or false
-        // If there are no credentials to check, you can just return true
-        throw new \Exception('TODO: check the credentials inside '.__FILE__);
+        if($this->encoder->isPasswordValid($user, $credentials['password']))
+            return true;
+        throw new CustomUserMessageAuthenticationException('mot de passe invalide');
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)

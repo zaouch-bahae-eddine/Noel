@@ -6,6 +6,8 @@ use App\Entity\Cadeaux;
 use App\Entity\Categories;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,11 +16,18 @@ class CadeauxType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('nom')
-            ->add('age')
-            ->add('prix')
+            ->add('nom', TextType::class, [
+                'attr' => ['class' => 'js-datepicker form-control']
+            ])
+            ->add('age', NumberType::class, [
+                'attr' => ['class' => 'js-datepicker form-control']
+            ])
+            ->add('prix', NumberType::class, [
+                'attr' => ['class' => 'js-datepicker form-control']
+            ])
             ->add('categorie', EntityType::class, [
                 'class' => Categories::class,
+                'attr' => ['class' => 'js-datepicker form-control']
             ])
         ;
     }
