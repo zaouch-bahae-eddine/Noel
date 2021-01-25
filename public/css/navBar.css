@@ -43,3 +43,8 @@ a{
 .nav-title{
 
 }
+/*Style date picker*/
+.datepicker-container.datepicker-dropdown.datepicker-top-left {
+    z-index: 99999 !important;
+}
+/*Style date picker*/

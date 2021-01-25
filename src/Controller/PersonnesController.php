@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PersonnesController extends AbstractController
@@ -35,11 +36,33 @@ class PersonnesController extends AbstractController
                 /**
                  * @var Personnes $personne
                  */
+                $roleText = '';
+                $roleNumero = 0;
+                switch ($personne->getRoles()[0]) {
+                    case "ROLE_PERE_NOEL":
+                        $roleText = "Pére Noel";
+                        $roleNumero = 1;
+                        break;
+                    case "ROLE_SECRETARIAT":
+                        $roleText = "Secretariat";
+                        $roleNumero = 2;
+                        break;
+                    case "ROLE_GESTIONNAIRE_STOCK":
+                        $roleText = "Gestionnaiere";
+                        $roleNumero = 3;
+                        break;
+                    case "ROLE_SOUHAIT":
+                        $roleText = "Utilisateur";
+                        $roleNumero = 4;
+                        break;
+                }
                 $ligne = [
                     "id" => $personne->getId(),
                     "nom" => $personne->getNom(),
                     "naissance" => $personne->getNaissance()->format('d/m/Y'),
                     "sexe" => $personne->getSexe(),
+                    "role" => $roleText,
+                    "roleNumero" => $roleNumero,
                     "adresse" => [
                         "idAdresse" => $personne->getAdresse()->getId(),
                         "nomRue" => $personne->getAdresse()->getNomRue(),
@@ -63,7 +86,7 @@ class PersonnesController extends AbstractController
     /**
      * @Route("/personnes/ajouter", name="ajouter_personnes", methods={"POST"})
      */
-    public function ajouterPersonne(Request $request, ValidatorInterface $validator){
+    public function ajouterPersonne(Request $request, ValidatorInterface $validator, UserPasswordEncoderInterface $encoder){
         if($request->isXmlHttpRequest()) {
             $formAdress = $this->createForm(AdressesType::class, null);
             $formPersonne = $this->createForm(PersonnesType::class, null);
@@ -75,6 +98,31 @@ class PersonnesController extends AbstractController
             //obj de type DATETIME
             $naissance = \DateTime::createFromFormat("d/m/Y", $data["naissance"]);
 
+            $role = '';
+            $roleText = '';
+            $roleNumero = 0;
+            switch ($data['role']) {
+                case 1:
+                    $role = "ROLE_PERE_NOEL";
+                    $roleText = "Pére Noel";
+                    $roleNumero = 1;
+                    break;
+                case 2:
+                    $role = "ROLE_SECRETARIAT";
+                    $roleText = "Secretariat";
+                    $roleNumero = 2;
+                    break;
+                case 3:
+                    $role = "ROLE_GESTIONNAIRE_STOCK";
+                    $roleText = "Gestionnaiere";
+                    $roleNumero = 3;
+                    break;
+                case 4:
+                    $role = "ROLE_SOUHAIT";
+                    $roleText = "Utilisateur";
+                    $roleNumero = 4;
+                    break;
+            }
             //logique de creation de type DATETIME from string (year, month, day)
             if ($data["ville"] != "") {
                 //Ajout la nouvelle adresse à la base de donnée
@@ -91,8 +139,14 @@ class PersonnesController extends AbstractController
                  * @var Personnes $newPersonne
                  */
                 $newPersonne = $formPersonne->getData();
+
                 $newPersonne->setAdresse($newAdresse)
-                            ->setNaissance($naissance);
+                            ->setNaissance($naissance)
+                            ->setRoles([$role])
+                            ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()))
+                ;
+
+
                 if (count($validator->validate($newPersonne)) > 0) {
                     throw new \Exception("formPersonne not valid");
                 }
@@ -109,7 +163,10 @@ class PersonnesController extends AbstractController
                  */
                 $newPersonne = $formPersonne->getData();
                 $newPersonne->setAdresse($adresseExiste)
-                            ->setNaissance($naissance);
+                            ->setNaissance($naissance)
+                            ->setRoles([$role])
+                            ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()))
+                ;
                 if (count($validator->validate($newPersonne)) > 0) {
                     throw new \Exception("formPersonne not valid");
                 }
@@ -121,6 +178,8 @@ class PersonnesController extends AbstractController
                 "nom" => $newPersonne->getNom(),
                 "naissance" => $newPersonne->getNaissance()->format('d/m/Y'),
                 "sexe" => $newPersonne->getSexe(),
+                "role" => $roleText,
+                "roleNumero" => $roleNumero,
                 "adresse" => [
                     "adresseExiste" => $adresseExiste,
                     "idAdresse" => $newPersonne->getAdresse()->getId(),
@@ -152,8 +211,8 @@ class PersonnesController extends AbstractController
     /**
      * @Route("/personnes/modifier/{id}", name="modifier_personne", methods={"POST"})
      */
-    function modifierPersonnes(Request $request, Personnes $oldPersonnes,  ValidatorInterface $validator){
-        if($request->isXmlHttpRequest()) {
+    function modifierPersonnes(Request $request, Personnes $oldPersonnes,  ValidatorInterface $validator, UserPasswordEncoderInterface $encoder){
+        if($request->isXmlHttpRequest() || true) {
             $formAdress = $this->createForm(AdressesType::class, null);
             $formPersonne = $this->createForm(PersonnesType::class, null);
             $adresseExiste = true;
@@ -162,7 +221,31 @@ class PersonnesController extends AbstractController
 
             //obj de type DATETIME
             $naissance = \DateTime::createFromFormat("d/m/Y", $data["naissance"]);
-
+            $role = '';
+            $roleText = '';
+            $roleNumero = 0;
+            switch ($data['role']) {
+                case 1:
+                    $role = "ROLE_PERE_NOEL";
+                    $roleText = "Pére Noel";
+                    $roleNumero = 1;
+                    break;
+                case 2:
+                    $role = "ROLE_SECRETARIAT";
+                    $roleText = "Secretariat";
+                    $roleNumero = 2;
+                    break;
+                case 3:
+                    $role = "ROLE_GESTIONNAIRE_STOCK";
+                    $roleText = "Gestionnaiere";
+                    $roleNumero = 3;
+                    break;
+                case 4:
+                    $role = "ROLE_SOUHAIT";
+                    $roleText = "Utilisateur";
+                    $roleNumero = 4;
+                    break;
+            }
             //logique de creation de type DATETIME from string (year, month, day)
             if ($data["ville"] != "") {
                 //Ajout la nouvelle adresse à la base de donnée
@@ -182,7 +265,10 @@ class PersonnesController extends AbstractController
                 $oldPersonnes
                     ->setSexe($newPersonne->getSexe())
                     ->setAdresse($newAdresse)
-                    ->setNaissance($naissance);
+                    ->setNaissance($naissance)
+                    ->setRoles([$role])
+                    ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()))
+                ;
                 if (count($validator->validate($oldPersonnes)) > 0) {
                     throw new \Exception("formPersonne not valid");
                 }
@@ -199,7 +285,9 @@ class PersonnesController extends AbstractController
                 $oldPersonnes
                     ->setSexe($newPersonne->getSexe())
                     ->setAdresse($adresseExiste)
-                    ->setNaissance($naissance);
+                    ->setNaissance($naissance)
+                    ->setRoles([$role])
+                    ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()));
                 if (count($validator->validate($oldPersonnes)) > 0) {
                     throw new \Exception("formPersonne not valid");
                 }
@@ -210,6 +298,8 @@ class PersonnesController extends AbstractController
                 "id" => $oldPersonnes->getId(),
                 "naissance" => $oldPersonnes->getNaissance()->format('d/m/Y'),
                 "sexe" => $oldPersonnes->getSexe(),
+                "role" => $roleText,
+                "roleNumero" => $roleNumero,
                 "adresse" => [
                     "adresseExiste" => $adresseExiste,
                     "idAdresse" => $oldPersonnes->getAdresse()->getId(),

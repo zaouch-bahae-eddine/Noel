@@ -33,9 +33,9 @@ security:
     role_hierarchy:
         ROLE_PERE_NOEL: [ROLE_GESTIONNAIRE_STOCK, ROLE_SECRETARIAT]
     access_control:
-        - { path: ^/souhait, roles: ROLE_SOUHAIT }
-        - { path: ^/cadeaux, roles: ROLE_GESTIONNAIRE_STOCK }
-        - { path: ^/categories, roles: ROLE_GESTIONNAIRE_STOCK }
-        - { path: ^/personnes, roles: ROLE_SECRETARIAT }
+       # - { path: ^/souhait, roles: ROLE_SOUHAIT }
+        #- { path: ^/cadeaux, roles: ROLE_GESTIONNAIRE_STOCK }
+        #- { path: ^/categories, roles: ROLE_GESTIONNAIRE_STOCK }
+        #- { path: ^/personnes, roles: ROLE_SECRETARIAT }
         - { path: ^/adresses, roles: ROLE_SECRETARIAT }
         - { path: ^/profile, roles: ROLE_USER }

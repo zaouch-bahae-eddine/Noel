@@ -39,11 +39,23 @@
     <div id="select-adresse">
         {{ form_row(personnesFormAjouter.adresse) }}
     </div>
+    <label for="first-mdp" >Mot de passe</label>
+    <input type="password" id="first-mdp" name="password" class="form-control">
+
+    <label for="second-mdp">Role d'utilisateur</label>
+    <select name="role" id="select-role-ajout" class="form-control">
+        <option value="">Choisissez un role pour l'utilisateur</option>
+        <option value="1">Pére Noel</option>
+        <option value="2">Secretairiat</option>
+        <option value="3">Gestionaire de stock</option>
+        <option value="4">Utilisateur client</option>
+    </select>
     <a class="display-sub-form"><img src="{{ asset('/img/icon/seeMore.png') }}" width="12px" alt=""> Nouvelle Adresse</a>
     <div class="sub-form-adresse" style="display: none;">
         <a class="hide-sub-form"><img src="{{ asset('/img/icon/cancel.png') }}" width="12px" alt=""> Annuler</a>
         {{ form_row(personnesFormAjouter.nouvelleAdresse) }}
     </div>
+
     </div>
     <div class="modal-footer">
         <button id="ajoutButton" class="btn btn-primary" type="submit">Ajouter</button>
@@ -70,6 +82,17 @@
     <div id="select-adresse">
         {{ form_row(personnesFormModifier.adresse) }}
     </div>
+    <label for="first-mdp" >Mot de passe</label>
+    <input type="password" id="first-mdp" name="password" class="form-control">
+
+    <label for="second-mdp">Role d'utilisateur</label>
+    <select name="role" id="select-role-modif" class="form-control">
+        <option value="">Choisissez un role pour l'utilisateur</option>
+        <option value="1">Pére Noel</option>
+        <option value="2">Secretairiat</option>
+        <option value="3">Gestionaire de stock</option>
+        <option value="4">Utilisateur client</option>
+    </select>
     <a class="display-sub-form" ><img src="{{ asset('/img/icon/seeMore.png') }}" width="12px" alt=""> Nouvelle Adresse</a>
     <div class="sub-form-adresse" style="display: none;">
         <a class="hide-sub-form"><img src="{{ asset('/img/icon/cancel.png') }}" width="12px" alt=""> Annuler</a>
@@ -87,8 +110,7 @@
     <a href="" id="securiteAge">Liste des personnes souhaitant des cadeaux inadaptès à leurs age</a>
     <a href="" id="annulerSecurite">Annuler</a>
     <!-- Table content-->
-    <div class="card shadow mb-4">
-        <h1 class="h3 mb-2 text-gray-800">Gestion des Personnes</h1>
+
         <div class="card shadow mb-4">
             <div class="card-body">
                 <div class="table-responsive">
@@ -99,29 +121,19 @@
                                 <th>date de naissance</th>
                                 <th>sexe</th>
                                 <th>Adresse</th>
+                                <th>Role</th>
+                                <th>Mot de passe</th>
                                 <th>Cadeaux souaités</th>
                                 <th>Modifier</th>
                                 <th>Supprimer</th>
                             </tr>
                         </theader>
-                        <tfoot>
-                            <tr>
-                                <th>Nom Prénom</th>
-                                <th>date de naissance</th>
-                                <th>sexe</th>
-                                <th>Adresse</th>
-                                <th>Cadeaux souaités</th>
-                                <th>Modifier</th>
-                                <th>Supprimer</th>
-                            </tr>
-                        </tfoot>
                         <tbody id="content">
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </div>
 
     <div id="msg-if-vide"></div>
     <div id="adresse">
@@ -338,6 +350,7 @@
 
     //supp
         function supprimer(idToDelete){
+            alert("vous le")
             $.ajax({
                 url: '/personnes/supprimer/' + idToDelete,
                 type: 'DELETE',
@@ -374,10 +387,12 @@
                     let idCadeau = 'c-personne-' + ligne['id'];
                     let idAdresse= 'a-personne-' + ligne['adresse']['idAdresse'];
 
-                    let e = $('<tr class="table-primary"><td class="nom">' +
+                    let e = $('<tr ><td class="nom">' +
                         '</td><td class="naissance"></td>' +
                         '<td class="sexe"></td>' +
-                        '<td class="adresse" id='+ idAdresse +'></td>' +
+                        '<td class="adresse" id="'+ idAdresse +'"></td>' +
+                        '<td class="role" id="role-'+ligne['roleNumero']+'"></td>' +
+                        '<td class="mdp"><img src="{{ asset('img/icon/lock.png') }}" alt=""></td>' +
                         '<td class="cadeaux"><a href="#" id="' + idCadeau + '">Cadeaux souhaités</a></td>' +
                         ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
                         '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
@@ -387,6 +402,7 @@
                     $('.nom', e).html(ligne['nom']);
                     $('.naissance', e).html(ligne['naissance']);
                     $('.sexe', e).html(ligne['sexe']);
+                    $('.role', e).html(ligne['role']);
                     $('.adresse', e).html(
                         ligne['adresse']["numRue"] + ' ' +
                         ligne['adresse']["nomRue"] + '<br/>' +
@@ -416,13 +432,14 @@
         }
     //Fonction qui affiche dans le tableau html les donnée(personne)
 
-    //Fonction: Modifier personne
+    //Fonction: Modifier personne (remplir le form)
         function modifierPersonne(event) {
             idToModif = Number(event.target.id.substring(11));
 
             let tr = $('#' + event.target.id).closest('tr');
             let idAdresse = $('.adresse', tr).attr('id').substring(11);
-            console.log(idAdresse);
+            let idRole = $('.role', tr).attr('id').substring(5);
+            console.log('hello' + idRole);
             $("#PersonneFormModifier #personnes_adresses_nom").val($('.nom', tr).text());
             if($('.sexe', tr).text() == 'Home') {
                 $("#PersonneFormModifier #personnes_adresses_sexe_0").attr('checked', true);
@@ -432,6 +449,7 @@
             }
             $("#PersonneFormModifier #personnes_adresses_naissance").val($('.naissance', tr).text());
             $('#PersonneFormModifier #personnes_adresses_adresse option[value="'+idAdresse+'"]').attr('selected', true);
+            $('#PersonneFormModifier #select-role-modif option[value="'+idRole+'"]').attr('selected', true);
         }
     //Fonction: Modifier personne
 
@@ -463,7 +481,7 @@
             event.preventDefault();
 
             var data = {};
-            console.log($(this).serializeArray());
+
             //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
             $(this).serializeArray().forEach(obj=>{
                 let name = getNameInput(obj.name);
@@ -477,6 +495,7 @@
                     data[name] = value;
                 }
             });
+            console.log( JSON.stringify(data));
             $.ajax({
                 url: "/personnes/ajouter",
                 type: 'POST',
