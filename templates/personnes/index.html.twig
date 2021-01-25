@@ -1,19 +1,36 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestion des Personnes{% endblock %}
-
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/css/PersonnesStyle.css') }}">
+{% endblock %}
 {% block body %}
+
+
+    <!-- Modal -->
     <div class="filtre">
         <form id="filtrePersonne">
-            <select id="filtre-ville" >
+            <select id="filtre-ville" class="form-control" >
                 <option selected="selected">Ville</option>
             </select>
-            <select id="filtre-rue" disabled>
+            <select id="filtre-rue" disabled  class="form-control" >
                 <option selected="selected">Nom rue</option>
             </select>
         </form>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajoutModal">
+            Ajouter Personne
+        </button>
     </div>
-    <hr/>
+        <div class="modal fade" id="ajoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ajouter cadeau</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
     <!-- Formulaire d'ajout -->
     {{ form_start(personnesFormAjouter,{'attr': {'id': 'PersonneFormAjouter'}}) }}
     {{ form_row(personnesFormAjouter.nom) }}
@@ -22,15 +39,29 @@
     <div id="select-adresse">
         {{ form_row(personnesFormAjouter.adresse) }}
     </div>
-    <a class="display-sub-form">Nouvelle Adresse</a>
+    <a class="display-sub-form"><img src="{{ asset('/img/icon/seeMore.png') }}" width="12px" alt=""> Nouvelle Adresse</a>
     <div class="sub-form-adresse" style="display: none;">
-        <a class="hide-sub-form">Annuler</a>
+        <a class="hide-sub-form"><img src="{{ asset('/img/icon/cancel.png') }}" width="12px" alt=""> Annuler</a>
         {{ form_row(personnesFormAjouter.nouvelleAdresse) }}
     </div>
-    <button id="ajoutButton" type="submit">Ajouter</button>
+    </div>
+    <div class="modal-footer">
+        <button id="ajoutButton" class="btn btn-primary" type="submit">Ajouter</button>
+    </div>
     {{ form_end(personnesFormAjouter) }}
+</div>
+</div>
+</div>
+
     <!--  Formulaire d'ajout -->
-    <hr/>
+            <div class="modal fade" id="modifierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifier cadeau</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
     <!-- Formulaire de modifier -->
     {{ form_start(personnesFormModifier,{'attr': {'id': 'PersonneFormModifier'}}) }}
     {{ form_row(personnesFormModifier.nom) }}
@@ -39,42 +70,85 @@
     <div id="select-adresse">
         {{ form_row(personnesFormModifier.adresse) }}
     </div>
-    <a class="display-sub-form" >Nouvelle Adresse</a>
+    <a class="display-sub-form" ><img src="{{ asset('/img/icon/seeMore.png') }}" width="12px" alt=""> Nouvelle Adresse</a>
     <div class="sub-form-adresse" style="display: none;">
-        <a class="hide-sub-form">Annuler</a>
+        <a class="hide-sub-form"><img src="{{ asset('/img/icon/cancel.png') }}" width="12px" alt=""> Annuler</a>
         {{ form_row(personnesFormModifier.nouvelleAdresse) }}
     </div>
-    <button id="modifierButton" type="submit">Modifier</button>
-    {{ form_end(personnesFormModifier) }}
+                    </div>
+                <div class="modal-footer">
+                    <button id="modifierButton" class="btn btn-primary" type="submit">Modifier</button>
+                </div>
+                {{ form_end(personnesFormModifier) }}
+            </div>
+        </div>
+            </div>
     <!--  Formulaire de modifier -->
-    <hr/>
     <a href="" id="securiteAge">Liste des personnes souhaitant des cadeaux inadaptès à leurs age</a>
     <a href="" id="annulerSecurite">Annuler</a>
-    <hr/>
     <!-- Table content-->
-    <table id="personnes">
-        <theader>
-            <tr>
-                <th>Nom Prénom</th>
-                <th>date de naissance</th>
-                <th>sexe</th>
-                <th>Adresse</th>
-                <th>Cadeaux souaités</th>
-                <th>Modifier</th>
-                <th>Supprimer</th>
-            </tr>
-        </theader>
-        <tbody id="content">
-        </tbody>
-    </table>
+    <div class="card shadow mb-4">
+        <h1 class="h3 mb-2 text-gray-800">Gestion des Personnes</h1>
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="personnes" class="table table-bordered">
+                        <theader>
+                            <tr>
+                                <th>Nom Prénom</th>
+                                <th>date de naissance</th>
+                                <th>sexe</th>
+                                <th>Adresse</th>
+                                <th>Cadeaux souaités</th>
+                                <th>Modifier</th>
+                                <th>Supprimer</th>
+                            </tr>
+                        </theader>
+                        <tfoot>
+                            <tr>
+                                <th>Nom Prénom</th>
+                                <th>date de naissance</th>
+                                <th>sexe</th>
+                                <th>Adresse</th>
+                                <th>Cadeaux souaités</th>
+                                <th>Modifier</th>
+                                <th>Supprimer</th>
+                            </tr>
+                        </tfoot>
+                        <tbody id="content">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="msg-if-vide"></div>
     <div id="adresse">
     </div>
-    <div id="personnes-cadeux">
+    <!-- Modal -->
+<div class="modal fade" id="cadeauModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Cadeaux souhaités</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="personnes-cadeux">
+        </div>
+      </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
     </div>
+  </div>
+</div>
     <!-- /Table content-->
 {% endblock %}
 {% block javascripts %}
+    {{ parent() }}
 <script>
 
     //variables globales
@@ -85,6 +159,7 @@
         $('.display-sub-form').click(function (event) {
             $('.sub-form-adresse').css("display", "block");
             $('.select-adresse').css("display", "none");
+            $(this).css('display', 'none');
         });
     //Display sous-formulaire hide select
 
@@ -92,11 +167,13 @@
         $('.hide-sub-form').click(function (event) {
             $('.sub-form-adresse').css("display", "none");
             $('.select-adresse').css("display", "block");
+            $('.display-sub-form').css('display', 'block');
         });
     //Display select hide sous formulaire
     //Filtre des personnes avec un age inferieur à l'age de possibilité du cadeau
     $('#securiteAge').on('click', function (event) {
         event.preventDefault();
+        $('#annulerSecurite').css('display','flex');
         $.ajax({
             url: '/personnes/security',
             type: 'GET',
@@ -119,6 +196,7 @@
         $('#content tr').each(function () {
             $(this).css('visibility', 'visible');
         });
+        $(this).css('display', 'none');
     })
     //Annuler filtre de security
     //Filtre des personnes avec un age inferieur à l'age de possibilité du cadeau
@@ -212,7 +290,7 @@
 
                 success: function (response) {
                     $("#content").html('');
-                    $("#filtre-rue").html('<option value="0" selected="selected">Toutes les rue</option>');
+                    $("#filtre-rue").html('<option value="0" selected="selected">Toutes les rues</option>');
                     $("#filtre-rue").prop('disabled', false);
                     if(typeof response["Rues"] !== 'undefined') {
                         response["Rues"].forEach(function (rueObjet) {
@@ -296,7 +374,7 @@
                     let idCadeau = 'c-personne-' + ligne['id'];
                     let idAdresse= 'a-personne-' + ligne['adresse']['idAdresse'];
 
-                    let e = $('<tr><td class="nom">' +
+                    let e = $('<tr class="table-primary"><td class="nom">' +
                         '</td><td class="naissance"></td>' +
                         '<td class="sexe"></td>' +
                         '<td class="adresse" id='+ idAdresse +'></td>' +
@@ -320,6 +398,7 @@
                     $('#' + idModification).click(function (event) {
                         event.preventDefault();
                         modifierPersonne(event);
+                        $('#modifierModal').modal('show');
                     });
                     $('#' + idSuppression).click(function (event) {
                         event.preventDefault();
@@ -330,6 +409,7 @@
                         event.preventDefault();
                         let idPersonne = Number(event.target.id.substring(11));
                         cadeauxSouhaites(idPersonne);
+                        $('#cadeauModal').modal('show');
                     });
                 }
             }
@@ -344,7 +424,6 @@
             let idAdresse = $('.adresse', tr).attr('id').substring(11);
             console.log(idAdresse);
             $("#PersonneFormModifier #personnes_adresses_nom").val($('.nom', tr).text());
-            alert($('.sexe', tr).text());
             if($('.sexe', tr).text() == 'Home') {
                 $("#PersonneFormModifier #personnes_adresses_sexe_0").attr('checked', true);
             }
@@ -373,8 +452,7 @@
                     afficherTableau(data)
                 },
                 error: function(xhr, textStatus, errorThrown) {
-                    console.log(xhr);
-                    alert('Ajax request failed.' + textStatus + 'error: ' + errorThrown);
+                    console.log('[prob] Affichage');
                 }
             });
         });

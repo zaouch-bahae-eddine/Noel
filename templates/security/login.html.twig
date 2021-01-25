@@ -7,6 +7,18 @@
 {% endblock %}
 {% block body %}
     <div class="indexContent">
+        <div class="description">
+            <div id="description-content">
+                <div>
+                    <h1>C'est Noel !</h1>
+                    <p>Souhaitez les cadeaux de vos réves</p>
+                </div>
+                <div class="btn-Controlle">
+                    <button class="btn btn-lg btn-primary" id="switchFormInscription">S'inscrir</button>
+                    <button class="btn btn-lg btn-primary" id="switchFormConnection">Se connecter</button>
+                </div>
+            </div>
+        </div>
         <form method="post" class="login-form">
             {% if error %}
                 <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -65,7 +77,21 @@
     </div>
 {% endblock %}
 {% block javascripts %}
+    {{ parent() }}
     <script>
+        //Design Switch form
+        $('#switchFormInscription').on('click', function (e) {
+            e.preventDefault();
+            $('#inscription').css('display', 'block');
+        })
+        $('#switchFormConnection').on('click', function (e) {
+            e.preventDefault();
+            $('#inscription').css('display', 'none');
+        })
+        //Design Switch form
+
+
+
         //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
         function getNameInput(inputName) {
             let t = inputName.split("");

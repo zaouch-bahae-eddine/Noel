@@ -1,0 +1,34 @@
+div#personnes_adresses_sexe {
+    display: flex;
+    align-items: center;
+    border: 0;
+    padding: 3px;
+}
+a.display-sub-form, a.hide-sub-form, a#securiteAge, a#annulerSecurite {
+    display: flex;
+    width: 100%;
+    text-align: center;
+    color: #ef4b4b !important;
+    padding: 5px;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+}
+a#annulerSecurite{
+    display: none;
+}
+.filtre {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 34px 0;
+}
+form#filtrePersonne {
+    display: flex;
+    justify-content: center;
+    width: 540px;
+    height: 41px;
+}
+select#filtre-ville , select#filtre-rue {
+    margin-right: 10px;
+}

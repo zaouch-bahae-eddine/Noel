@@ -1,27 +1,32 @@
-.indexContent{
+.indexContent {
     width: 100%;
-    height: 80vh;
-    background-image: url("/img/backgroundColor.jpg");
+    height: 100vh;
+    background-image: url("/img/backgroundColor3.jpg");
     background-repeat: no-repeat;
     background-size: cover;
-    background-position-y: -182px;
 }
-label{
-    width: 100%;
-    margin-left: 5px;
-}
-.login-form{
-    width: 400px;
+.login-form {
+    width: 490px;
     background-color: aliceblue;
     position: absolute;
-    right: 150px;
-    top: 150px;
-    padding: 16px;
+    right: 235px;
+    top: 261px;
+    padding: 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-around;
     border-radius: 16px;
+}
+button.btn.btn-lg.btn-primary{
+    width: 100%;
+}
+input#inputPassword{
+    margin-bottom: 38px ;
+}
+#inscription{
+    display: none;
+    top: 126px;
 }
 #inscription div {
     width: 100%;
@@ -29,4 +34,31 @@ label{
 div#personnes_adresses_sexe {
     display: flex;
     align-items: center;
+    background: none;
+    border: 0;
+}
+button#ajoutButton {
+    margin-top: 15px;
+    width: 100%;
+}
+.description{
+    display: flex;
+    width: 80%;
+    height: 100vh;
+    align-items: center;
+    padding-left: 200px;
+    color: white;
+}
+.description h1 {
+    font-size: 4em;
+}
+.description p{
+    font-size: 2em;
+}
+#switchFormInscription, #switchFormConnection{
+    width: 200px;
+}
+.btn-Controlle{
+    display: flex;
+    justify-content: space-around;
 }
