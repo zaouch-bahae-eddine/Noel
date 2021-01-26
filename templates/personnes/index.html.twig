@@ -74,36 +74,36 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-    <!-- Formulaire de modifier -->
-    {{ form_start(personnesFormModifier,{'attr': {'id': 'PersonneFormModifier'}}) }}
-    {{ form_row(personnesFormModifier.nom) }}
-    {{ form_row(personnesFormModifier.sexe) }}
-    {{ form_row(personnesFormModifier.naissance) }}
-    <div id="select-adresse">
-        {{ form_row(personnesFormModifier.adresse) }}
-    </div>
-    <label for="first-mdp" >Mot de passe</label>
-    <input type="password" id="first-mdp" name="password" class="form-control">
+                        <!-- Formulaire de modifier -->
+                        {{ form_start(personnesFormModifier,{'attr': {'id': 'PersonneFormModifier'}}) }}
+                        {{ form_row(personnesFormModifier.nom) }}
+                        {{ form_row(personnesFormModifier.sexe) }}
+                        {{ form_row(personnesFormModifier.naissance) }}
+                        <div id="select-adresse">
+                            {{ form_row(personnesFormModifier.adresse) }}
+                        </div>
+                        <label for="first-mdp" >Mot de passe</label>
+                        <input type="password" id="first-mdp" name="password" class="form-control">
 
-    <label for="second-mdp">Role d'utilisateur</label>
-    <select name="role" id="select-role-modif" class="form-control">
-        <option value="">Choisissez un role pour l'utilisateur</option>
-        <option value="1">Pére Noel</option>
-        <option value="2">Secretairiat</option>
-        <option value="3">Gestionaire de stock</option>
-        <option value="4">Utilisateur client</option>
-    </select>
-    <a class="display-sub-form" ><img src="{{ asset('/img/icon/seeMore.png') }}" width="12px" alt=""> Nouvelle Adresse</a>
-    <div class="sub-form-adresse" style="display: none;">
-        <a class="hide-sub-form"><img src="{{ asset('/img/icon/cancel.png') }}" width="12px" alt=""> Annuler</a>
-        {{ form_row(personnesFormModifier.nouvelleAdresse) }}
-    </div>
+                        <label for="second-mdp">Role d'utilisateur</label>
+                        <select name="role" id="select-role-modif" class="form-control">
+                            <option value="">Choisissez un role pour l'utilisateur</option>
+                            <option value="1">Pére Noel</option>
+                            <option value="2">Secretairiat</option>
+                            <option value="3">Gestionaire de stock</option>
+                            <option value="4">Utilisateur client</option>
+                        </select>
+                        <a class="display-sub-form" ><img src="{{ asset('/img/icon/seeMore.png') }}" width="12px" alt=""> Nouvelle Adresse</a>
+                        <div class="sub-form-adresse" style="display: none;">
+                            <a class="hide-sub-form"><img src="{{ asset('/img/icon/cancel.png') }}" width="12px" alt=""> Annuler</a>
+                            {{ form_row(personnesFormModifier.nouvelleAdresse) }}
+                        </div>
+                        </div>
+                    <div class="modal-footer">
+                        <button id="modifierButton" class="btn btn-primary" type="submit">Modifier</button>
                     </div>
-                <div class="modal-footer">
-                    <button id="modifierButton" class="btn btn-primary" type="submit">Modifier</button>
+                    {{ form_end(personnesFormModifier) }}
                 </div>
-                {{ form_end(personnesFormModifier) }}
-            </div>
         </div>
             </div>
     <!--  Formulaire de modifier -->

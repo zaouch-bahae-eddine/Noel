@@ -21,6 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PersonnesController extends AbstractController
 {
+
     /**
      * @Route("/personnes", name="personnes")
      */

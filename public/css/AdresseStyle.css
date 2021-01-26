@@ -1,0 +1,13 @@
+#filtres{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#filtreVille {
+    height: 40px;
+}
+#filtres form{
+    display: inherit;
+    justify-content: space-between;
+    width: 300px;
+}

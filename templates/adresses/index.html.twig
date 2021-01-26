@@ -1,18 +1,44 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Hello AdressesController!{% endblock %}
-
+{% block stylesheets %}
+        {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/AdresseStyle.css') }}">
+{% endblock %}
 {% block body %}
     <h1> Gestion des adresses</h1>
     <div id="filtres">
         <form>
-            <label for="filtreVille">Ville</label>
             <input type="text" id="filtreVille" />
-            <button type="submit">Chercher</button>
+            <button type="submit" class="btn btn-primary" >Recherche</button>
         </form>
     </div>
     <a href="#">Ajouter</a>
     <!-- form modifier -->
+        <div class="modal fade" id="modifModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ajouter cadeau</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(adressesFormModifier, {'attr': {'id': 'adressFormModifier', 'action': path('modifier_adresses', {id: 0}), 'method': 'POST'}}) }}
+                    {{ form_row(adressesFormModifier.nomRue) }}
+                    {{ form_row(adressesFormModifier.numRue) }}
+                    {{ form_row(adressesFormModifier.codePostal) }}
+                    {{ form_row(adressesFormModifier.ville) }}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" >Modifier</button>
+                    {{ form_end(adressesFormModifier) }}
+                </div>
+            </div>
+        </div>
+        </div>
+    <!-- /form modifier -->
+
+    <!-- form ajouter -->
         <div class="modal fade" id="ajoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -21,25 +47,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-    {{ form_start(adressesFormModifier, {'attr': {'id': 'adressFormModifier', 'action': path('modifier_adresses', {id: 0}), 'method': 'POST'}}) }}
-    {{ form_row(adressesFormModifier.nomRue) }}
-    {{ form_row(adressesFormModifier.numRue) }}
-    {{ form_row(adressesFormModifier.codePostal) }}
-    {{ form_row(adressesFormModifier.ville) }}
-        <button type="submit" >Modifier</button>
-    {{ form_end(adressesFormModifier) }}
+                    {{ form_start(adressesFormAjouter, {'attr': {'id': 'adressFormAjouter', 'action': path('ajouter_adresses'), 'method': 'POST'}}) }}
+                        {{ form_row(adressesFormAjouter.nomRue) }}
+                        {{ form_row(adressesFormAjouter.numRue) }}
+                        {{ form_row(adressesFormAjouter.codePostal) }}
+                        {{ form_row(adressesFormAjouter.ville) }}
 
-    <!-- /form modifier -->
-
-    <!-- form ajouter -->
-
-    {{ form_start(adressesFormAjouter, {'attr': {'id': 'adressFormAjouter', 'action': path('ajouter_adresses'), 'method': 'POST'}}) }}
-        {{ form_row(adressesFormAjouter.nomRue) }}
-        {{ form_row(adressesFormAjouter.numRue) }}
-        {{ form_row(adressesFormAjouter.codePostal) }}
-        {{ form_row(adressesFormAjouter.ville) }}
-        <button type="submit" >Ajouter</button>
-    {{ form_end(adressesFormAjouter) }}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" >Ajouter</button>
+                    {{ form_end(adressesFormAjouter) }}
+                </div>
+            </div>
+        </div>
+        </div>
 
     <!-- /form ajouter -->
 
@@ -68,6 +89,7 @@
 
 {% endblock %}
 {% block javascripts %}
+    {{ parent() }}
     <script language = "javascript">
         //variable globale
         var idToModif = 0;
@@ -106,8 +128,8 @@
                         '</td><td class="numRue"></td>' +
                         '<td class="codePostal"></td>' +
                         '<td class="ville"></td>' +
-                        ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
-                        '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                        ' <td class="modifier"><a href="#"> <img width="24px" src="{{ asset('img/icon/edit.png') }}" id="' + idModification + '"/></a></td>' +
+                        '<td class="supprimer"><a href="#"> <img width="24px" src="{{ asset('img/icon/delete.png') }}"  id="' + idSuppression + '" /></a></td>' +
                         '</tr>'
                     );
 
@@ -120,6 +142,8 @@
                     $('#' + idModification).click(function (event) {
                         event.preventDefault();
                         modifierAdresse(event);
+
+                        $('#modifModal').modal('show');
                     });
                     $('#' + idSuppression).click(function (event) {
                         event.preventDefault();
@@ -252,19 +276,29 @@
 
         //supprimer
         function supprimer(idToDelete){
-            $.ajax({
-                url: '/adresses/supprimer/'+idToDelete,
-                type: 'DELETE',
-                async: true,
+            $.confirm({
+                title: 'Supprimer !',
+                content: 'Voullez vous vraiment supprimer cet utilisateur?',
+                type: 'red',
+                typeAnimated: true,
+                buttons: {
+                    tryAgain: {
+                        text: 'Supprimer',
+                        btnClass: 'btn-red',
+                        action: function(){
+                                    $.ajax({
+                                        url: '/adresses/supprimer/'+idToDelete,
+                                        type: 'DELETE',
+                                        async: true,
 
-                success: function (response) {
-                    //Effacer la ligne dans le tableau html
-                    supprimerAdresseFromTable(response[0]["success"]);
-                },
-                error: function (response) {
-                    console.log(response[0]["message"]);
-                }
-            });
+                                        success: function (response) {
+                                            //Effacer la ligne dans le tableau html
+                                            supprimerAdresseFromTable(response[0]["success"]);
+                                        },
+                                        error: function (response) {
+                                            console.log(response[0]["message"]);
+                                        }
+                                    });
         }
         //supprimer
 
