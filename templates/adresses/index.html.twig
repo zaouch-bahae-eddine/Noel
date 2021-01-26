@@ -9,9 +9,10 @@
     <h1> Gestion des adresses</h1>
     <div id="filtres">
         <form>
-            <input type="text" id="filtreVille" />
+            <input type="text" class="form-control" id="filtreVille" placeholder="Ville"/>
             <button type="submit" class="btn btn-primary" >Recherche</button>
         </form>
+        <button class="btn btn-primary" id="ajouterAdresseBtn">Ajouter adresse</button>
     </div>
     <a href="#">Ajouter</a>
     <!-- form modifier -->
@@ -19,7 +20,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ajouter cadeau</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Modifier adresse</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -30,7 +31,7 @@
                     {{ form_row(adressesFormModifier.ville) }}
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" >Modifier</button>
+                    <button type="submit" class="btn btn-primary" >Modifier</button>
                     {{ form_end(adressesFormModifier) }}
                 </div>
             </div>
@@ -43,7 +44,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ajouter cadeau</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Ajouter adresse</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -55,7 +56,7 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" >Ajouter</button>
+                    <button type="submit" class="btn btn-primary" >Ajouter</button>
                     {{ form_end(adressesFormAjouter) }}
                 </div>
             </div>
@@ -94,6 +95,13 @@
         //variable globale
         var idToModif = 0;
         //variable globale
+
+        //Affichege Modal Ajouter
+            $('#ajouterAdresseBtn').on('click', function (e) {
+                e.preventDefault();
+                $('#ajoutModal').modal('show');
+            })
+        //Affichege Modal Ajouter
 
         //Fonction remplis le formulaire apartir des lignes du tableau
         function modifierAdresse(event){
@@ -168,7 +176,6 @@
                 },
                 error: function(xhr, textStatus, errorThrown) {
                     console.log(xhr);
-                    alert('Ajax request failed.' + textStatus + 'errorooo: ' + errorThrown);
                 }
             });
         });
@@ -265,10 +272,17 @@
                     $('.numRue',tr).html(data['numRue']);
                     $('.codePostal',tr).html(data['codePostal']);
                     $('.ville',tr).html(data['ville']);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Modification réussie !'
+                    });
                 },
-                error: function (xhr, textStatus, errorThrown) {
-                    console.log('error' + errorThrown);
-                    console.log('data' + JSON.stringify(data));
+                error: function (response) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: response.responseJSON[0]["fail"],
+                        text: "Un probleme de connexion peut etre la cause !",
+                    });
                 }
             });
         });
@@ -296,9 +310,22 @@
                                             supprimerAdresseFromTable(response[0]["success"]);
                                         },
                                         error: function (response) {
-                                            console.log(response[0]["message"]);
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Action échoué',
+                                                text: response.responseJSON[0]["message"]
+                                            });
                                         }
                                     });
+                        }
+                    },
+                        close: {
+                            text: 'Annuler',
+                            action: function () {
+                            }
+                        }
+                    }
+                });
         }
         //supprimer
 

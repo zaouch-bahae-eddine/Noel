@@ -27,7 +27,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ajouter cadeau</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Ajouter personne</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -70,7 +70,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modifier cadeau</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Modifier personnes</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -369,7 +369,11 @@
                                     }
                                 },
                                 error: function (response) {
-                                    console.log(response[0]["fail"]);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: response.responseJSON[0]["fail"],
+                                        text: 'Un probleme de connexion peut etre la cause !'
+                                    })
                                 }
                             });
                         }
@@ -529,11 +533,19 @@
                         villePopulate();//Actualiser le filtre ville
                     }
                     //A mettre dans une fonction
-                    console.log("test");
                     afficherTableau(response);
                 },
-                error: function (xhr, status, errorThrown) {
-                    console.log("erreur: " + errorThrown+ "status"+ status+ "xhr" + xhr);
+                error: function (response) {
+                    let msgText = "Les données saisies non valides";
+                    if(response["status"] == 500) {
+                        msgText = "Un probleme de connexion peut etre la cause !";
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: response.responseJSON["fail"],
+                        text: msgText,
+                    })
                 }
             });
         });
@@ -588,9 +600,22 @@
                         ligne['adresse']["nomRue"] + '<br/>' +
                         ligne['adresse']["codePostal"] + ' ' +
                         ligne['adresse']["ville"]);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Modification réussie !'
+                    });
                 },
-                error: function (xhr, status, errorThrown) {
-                    console.log("erreur: " + errorThrown+ "status"+ status+ "xhr" + xhr);
+                error: function (response) {
+                    let msgText = "Les données saisies non valides";
+                    if(response["status"] == 500) {
+                        msgText = "Un probleme de connexion peut etre la cause !";
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: response.responseJSON["fail"],
+                        text: msgText,
+                    });
                 }
             });
         });

@@ -129,7 +129,7 @@ class PersonnesController extends AbstractController
                 //Ajout la nouvelle adresse à la base de donnée
                 $formAdress->submit($data);
                 if (count($validator->validate($formAdress->getData())) > 0) {
-                    throw new \Exception("formAdress not valid");
+                    return $this->json(["fail" => "Données de l\'adresse non valides"], 422);
                 }
                 $newAdresse = $formAdress->getData();
                 $em->persist($newAdresse);
@@ -149,7 +149,7 @@ class PersonnesController extends AbstractController
 
 
                 if (count($validator->validate($newPersonne)) > 0) {
-                    throw new \Exception("formPersonne not valid");
+                    return $this->json(["fail" => "Données de la personne non valides"], 422);
                 }
                 $em->persist($newPersonne);
                 $em->flush();
@@ -169,7 +169,7 @@ class PersonnesController extends AbstractController
                             ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()))
                 ;
                 if (count($validator->validate($newPersonne)) > 0) {
-                    throw new \Exception("formPersonne not valid");
+                    return $this->json(["fail" => "Données de la personne non valides"], 422);
                 }
                 $em->persist($newPersonne);
                 $em->flush();
@@ -193,7 +193,7 @@ class PersonnesController extends AbstractController
             $dataJson[0] = $ligne;
             return new JsonResponse($dataJson);
         } else {
-            return new JsonResponse([["fail" => "requete ajax"]], 500);
+            return $this->json(["fail" => "Action échoué"], 500);
         }
     }
     /**
@@ -213,7 +213,7 @@ class PersonnesController extends AbstractController
      * @Route("/personnes/modifier/{id}", name="modifier_personne", methods={"POST"})
      */
     function modifierPersonnes(Request $request, Personnes $oldPersonnes,  ValidatorInterface $validator, UserPasswordEncoderInterface $encoder){
-        if($request->isXmlHttpRequest() || true) {
+        if($request->isXmlHttpRequest()) {
             $formAdress = $this->createForm(AdressesType::class, null);
             $formPersonne = $this->createForm(PersonnesType::class, null);
             $adresseExiste = true;
@@ -253,7 +253,7 @@ class PersonnesController extends AbstractController
                 $formAdress->submit($data);
                 $newAdresse = $formAdress->getData();
                 if (count($validator->validate($newAdresse)) > 0) {
-                    throw new \Exception("formAdress not valid");
+                    return $this->json(["fail" => "Données de l\'adresse non valides"], 422);
                 }
                 $em->persist($newAdresse);
                 $em->flush();
@@ -271,7 +271,7 @@ class PersonnesController extends AbstractController
                     ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()))
                 ;
                 if (count($validator->validate($oldPersonnes)) > 0) {
-                    throw new \Exception("formPersonne not valid");
+                    return $this->json(["fail" => "Données de la personne non valides"], 422);
                 }
                 $em->persist($oldPersonnes);
                 $em->flush();
@@ -290,7 +290,7 @@ class PersonnesController extends AbstractController
                     ->setRoles([$role])
                     ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()));
                 if (count($validator->validate($oldPersonnes)) > 0) {
-                    throw new \Exception("formPersonne not valid");
+                    return $this->json(["fail" => "Données de la personne non valides"], 422);
                 }
                 $em->persist($oldPersonnes);
                 $em->flush();
@@ -313,7 +313,7 @@ class PersonnesController extends AbstractController
             $dataJson[0] = $ligne;
             return new JsonResponse($dataJson);
         } else {
-            return new JsonResponse([["fail" => "requete ajax"]], 500);
+            return $this->json(["fail" => "Action echouée"], 500);
         }
     }
 
@@ -330,7 +330,7 @@ class PersonnesController extends AbstractController
             return new JsonResponse([['success'=> $id]]);
         }
         else {
-            return new JsonResponse([["fail"=> "ma requette n'est pas ajax"]]);
+            return new JsonResponse([["fail"=> "Action non réussite !"]],500);
         }
     }
     /**

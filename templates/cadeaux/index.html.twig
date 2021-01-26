@@ -1,65 +1,124 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CadeauxController!{% endblock %}
-
+{% block title %}Cadeaux{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/CadeauStyle.css') }}">
+{% endblock %}
 {% block body %}
+    <h1> Gestion de Cadeau</h1>
+    <div id="AjouterContainer">
+        <button class="btn btn-primary">Ajouter Cadeau</button>
+    </div>
     <!-- Form Ajout-->
-    {{ form_start(cadeauxFormAjouter, {'attr' : { 'id': 'cadeauxFormAjout'}}) }}
-    {{ form_row(cadeauxFormAjouter.nom) }}
-    {{ form_row(cadeauxFormAjouter.age) }}
-    {{ form_row(cadeauxFormAjouter.prix) }}
-    {{ form_row(cadeauxFormAjouter.categorie) }}
-    <button type="submit">Ajouter</button>
-    {{ form_end(cadeauxFormAjouter) }}
-    <!-- Form Ajout-->
-    <hr/>    <!-- Form Ajout-->
-    {{ form_start(cadeauxFormModifier, {'attr' : { 'id': 'cadeauxFormModifier'}}) }}
-    {{ form_row(cadeauxFormModifier.nom) }}
-    {{ form_row(cadeauxFormModifier.age) }}
-    {{ form_row(cadeauxFormModifier.prix) }}
-    {{ form_row(cadeauxFormModifier.categorie) }}
-    <button type="submit">Modifier</button>
-    {{ form_end(cadeauxFormModifier) }}
-    <!-- Form Ajout-->
-    <hr/>
-    <!-- Table content-->
-    <table id="cadeaux">
-        <theader>
-            <tr>
-                <th>Nom</th>
-                <th>Age</th>
-                <th>Prix</th>
-                <th>Catégorie</th>
-                <th>Personnes</th>
-                <th>Modifier</th>
-                <th>Supprimer</th>
-            </tr>
-        </theader>
-        <tbody id="content">
-        </tbody>
-    </table>
-    <div id="msg-if-vide"></div>
-    <div id="personnes-cadeux">
-        <h3>Personnes</h3>
-        <ul>
-
-        </ul>
-        <div class="chartSexe">
-            <canvas id="Chart"></canvas>
+    <div class="modal fade" id="ajoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ajouter cadeau</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+            {{ form_start(cadeauxFormAjouter, {'attr' : { 'id': 'cadeauxFormAjout'}}) }}
+            {{ form_row(cadeauxFormAjouter.nom) }}
+            {{ form_row(cadeauxFormAjouter.age) }}
+            {{ form_row(cadeauxFormAjouter.prix) }}
+            {{ form_row(cadeauxFormAjouter.categorie) }}
+          </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+                {{ form_end(cadeauxFormAjouter) }}
+            </div>
         </div>
     </div>
+</div>
+    <!-- Form Ajout-->
+    <!-- Form Modif-->
+    <div class="modal fade" id="modifModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifier cadeau</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                        {{ form_start(cadeauxFormModifier, {'attr' : { 'id': 'cadeauxFormModifier'}}) }}
+                        {{ form_row(cadeauxFormModifier.nom) }}
+                        {{ form_row(cadeauxFormModifier.age) }}
+                        {{ form_row(cadeauxFormModifier.prix) }}
+                        {{ form_row(cadeauxFormModifier.categorie) }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Modifier</button>
+                        {{ form_end(cadeauxFormModifier) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- Form modif-->
 
-    <!-- /Table content-->
+    <!-- Table content-->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="cadeaux" class="table table-bordered">
+                        <theader>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Age</th>
+                                <th>Prix</th>
+                                <th>Catégorie</th>
+                                <th>Personnes</th>
+                                <th>Modifier</th>
+                                <th>Supprimer</th>
+                            </tr>
+                        </theader>
+                        <tbody id="content">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <!--Table content-->
+    <div id="msg-if-vide"></div>
+    <div class="modal fade" id="personnes-chart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Personnes souhaitant ce cadeau</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="personnes-cadeux">
+            <ul>
+            </ul>
+            <div class="chartSexe">
+                <canvas id="Chart"></canvas>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
 {% endblock %}
 {% block javascripts %}
+    {{ parent() }}
+
     <script src="{{ asset('js/crudCadeaux.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
 <script language = "javascript">
+
     //variable globale
     var idToModif = 0;
     //variable globale
     ajouterCadeauEvent('cadeauxFormAjout');
     modifierCadeauEvent('cadeauxFormModifier');
+
+    $('#AjouterContainer').on('click', function (e) {
+        e.preventDefault();
+        $('#ajoutModal').modal('show');
+    })
     // Retourn personnes d'un cadeau
     function getPersonnesOfCadeau(idCadeau) {
         $.ajax({
@@ -75,7 +134,11 @@
                 DessinerChartSexe([response["statSexe"]["Femme"],response["statSexe"]["Homme"]]);
             },
             error: function (response) {
-                console.log(response.responseJSON[0]["fail"]);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Action échoué',
+                    text: response.responseJSON[0]["fail"]
+                });
             }
         })
     }
@@ -112,9 +175,9 @@
                     '</td><td class="age"></td>' +
                     '<td class="prix"></td>' +
                     '<td class="categorie" id="'+idCategorie+'"></td>' +
-                    '<td class="personne"><a href="#" id="'+idPersonne+'">Personnes</a></td>' +
-                    ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
-                    '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                    '<td class="personne"><a href="#" ><img width="24px" src="{{ asset('img/icon/personne.png') }}" id="'+idPersonne+'"/></a></td>' +
+                    ' <td class="modifier"><a href="#" ><img width="24px" src="{{ asset('img/icon/edit.png') }}"  id="' + idModification + '" /></a></td>' +
+                    '<td class="supprimer"><a href="#" ><img width="24px" src="{{ asset('img/icon/delete.png') }}" id="' + idSuppression + '" /></a></td>' +
                     '</tr>'
                 );
 
@@ -127,16 +190,19 @@
                 $('#' + idModification).click(function (event) {
                     event.preventDefault();
                     modifierCadeau(event, 'cadeauxFormModifier');
+                    $('#modifModal').modal('show');
                 });
                 $('#' + idSuppression).click(function (event) {
                     event.preventDefault();
                     let idToDelete = Number(event.target.id.substring(9));
                     supprimer(idToDelete);
+
                 });
                 $('#' + idPersonne).click(function (event) {
                     event.preventDefault();
                     let idCadeau = Number(event.target.id.substring(9));
                     getPersonnesOfCadeau(idCadeau);
+                    $('#personnes-chart').modal('show');
                 });
             }
         }
@@ -158,7 +224,9 @@
                 }]
             },
             // Configuration options go here
-            options: {}
+            options: {
+                responsive: true,
+            }
         });
     }
     //chart Dessin
@@ -174,7 +242,11 @@
                 afficherTableau(response);
             },
             error: function () {
-                console.log('afficher tableau');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Action échoué',
+                    text: "Un probleme de connexion peut etre la cause !",
+                });
             }
         });
         //afficher cadeaux

@@ -59,14 +59,14 @@ class CadeauxController extends AbstractController
             $form->submit($data);
             $cadeau = $form->getData();
             if(count($validator->validate($cadeau)) > 0){
-                throw new \Exception("cadeau invalide !");
+                return  $this->json(["fail" => "Données du cadeau invalide !"], 422);
             }
             $em = $this->getDoctrine()->getManager();
             $em->persist($cadeau);
             $em->flush();
             return new JsonResponse([["success" => $cadeau->getId()]]);
         } else {
-            return new JsonResponse([["fail" => "not XMLHTTPREQUEST"]]);
+            return $this->json(["fail" => "Un probleme de connexion peut etre la cause !"], 500);
         }
     }
     /**
@@ -81,7 +81,7 @@ class CadeauxController extends AbstractController
                 $form->submit($data);
                 $newCadeau = $form->getData();
                 if (count($validator->validate($newCadeau)) > 0) {
-                    throw new \Exception("modification de cadeau ne contienne pas des donnees valid!");
+                    return $this->json(["fail" => "Données du cadeau invalide !"], 422);
                 }
                 $cadeau->setNom($newCadeau->getNom())
                     ->setAge($newCadeau->getAge())
@@ -92,7 +92,7 @@ class CadeauxController extends AbstractController
                 return new JsonResponse([["fail" => "cadeau à modifier n'existe pas ! il peut etre supprimé"]],404);
             }
         } else {
-            return new JsonResponse([["fail" => "request not XMLHTTPREQUEST"]],500);
+            return new JsonResponse([["fail" => "Un probleme de connexion peut etre la cause !"]],500);
         }
     }
     /**
@@ -109,10 +109,10 @@ class CadeauxController extends AbstractController
                     $em->flush();
                     return new JsonResponse([["success" =>$idCadeau ]],200);
                 } else {
-                    return new JsonResponse([["fail" => "cadeau est souhaité par des personnes !"]], 500);
+                    return new JsonResponse([["fail" => "Cadeau est souhaité par des personnes !"]], 500);
                 }
             } else {
-                return new JsonResponse([["fail" => "cadeau à supprimer n'existe pas ! il peut etre deja supprimé"]], 404);
+                return new JsonResponse([["fail" => "Cadeau à supprimer n'existe pas ! il peut etre deja supprimé"]], 404);
             }
         }else {
             return new JsonResponse([["fail" => "request not XMLHTTPREQUEST"]], 500);

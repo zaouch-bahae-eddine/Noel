@@ -30,21 +30,22 @@ function ajouterCadeauEvent(idForm) {
                         '</td><td class="age"></td>' +
                         '<td class="prix"></td>' +
                         '<td class="categorie" id="'+idCategorie+'"></td>' +
-                        '<td class="personne"><a href="#" id="'+idPersonne+'">Personnes</a></td>' +
-                        ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
-                        '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                        '<td class="personne"><a href="#" ><img width="24px" src="../img/icon/personne.png" id="'+idPersonne+'"/></a></td>' +
+                        ' <td class="modifier"><a href="#" ><img width="24px" src="../img/icon/edit.png" id="' + idModification + '" /></a></td>' +
+                        '<td class="supprimer"><a href="#" ><img width="24px" src="../img/icon/delete.png" id="' + idSuppression + '" /></a></td>' +
                         '</tr>'
                     );
 
                     $('.nom', e).html(data['nom']);
                     $('.age', e).html(data['age']);
                     $('.prix', e).html(data['prix']);
-                    $('.categorie', e).html($("#adressFormAjouter #cadeaux_categorie option[value ="+data['categorie']+"]").text());
+                    $('.categorie', e).html($("#cadeauxFormAjout #cadeaux_categorie option[value ="+data['categorie']+"]").text());
 
                     $("#content").append(e);
                     $('#' + idModification).click(function (event) {
                         event.preventDefault();
                         modifierCadeau(event);
+                        $('#modifModal').modal('show');
                     });
                     $('#' + idSuppression).click(function (event) {
                         event.preventDefault();
@@ -53,8 +54,13 @@ function ajouterCadeauEvent(idForm) {
                     });
                 }
             },
-            error: function (xhr, textStatus, errorThrown) {
-                console.log("[Problem]: Ajouter cadeaux");
+            error: function (response) {
+                console.log(response);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Action échoué',
+                    text: response.responseJSON["fail"]
+                });
             }
         });
     });
@@ -101,28 +107,62 @@ function modifierCadeauEvent(idForm) {
                     $('.age',tr).html(data['age']);
                     $('.prix',tr).html(data['prix']);
                     $('.categorie',tr).html($("#cadeauxFormModifier #cadeaux_categorie option[value=\""+data['categorie']+"\"]").text());
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Modification effectué'
+                    });
                 }
             },
-            error: function (xhr, status, errorThrown) {
+            error: function (response) {
                 console.log("[probleme]: modifier cadeaux");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Action échoué',
+                    text: response.responseJSON["fail"]
+                });
             }
         });
     });
 }
 function supprimer(idToDelete){
-    $.ajax({
-        url: '/cadeaux/supprimer/'+idToDelete,
-        type: 'DELETE',
-        async: true,
+    $.confirm({
+        title: 'Supprimer !',
+        content: 'Voullez vous vraiment supprimer cet utilisateur?',
+        type: 'red',
+        typeAnimated: true,
+        buttons: {
+            tryAgain: {
+                text: 'Supprimer',
+                btnClass: 'btn-red',
+                action: function(){
+                    $.ajax({
+                        url: '/cadeaux/supprimer/'+idToDelete,
+                        type: 'DELETE',
+                        async: true,
 
-        success: function (response) {
-            //Effacer la ligne dans le tableau html
-            supprimerCadeauFromTable(response[0]["success"]);// response[0]["success"] est l'id du cadeau supprimmé
-        },
-        error: function (response) {
-            console.log(response.responseJSON[0]["fail"]);
+                        success: function (response) {
+                            //Effacer la ligne dans le tableau html
+                            supprimerCadeauFromTable(response[0]["success"]);// response[0]["success"] est l'id du cadeau supprimmé
+                        },
+                        error: function (response) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Action échoué',
+                                text: response.responseJSON[0]["fail"]
+                            });
+                        }
+                    });
+                }
+            },
+            close: {
+                text: 'Annuler',
+                action: function () {
+                }
+            }
         }
     });
+
+
 }
 function supprimerCadeauFromTable(id){
     $('#s-cadeau-' +id).closest('tr').remove();

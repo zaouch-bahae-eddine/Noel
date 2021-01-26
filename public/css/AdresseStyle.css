@@ -4,10 +4,16 @@
     align-items: center;
 }
 #filtreVille {
-    height: 40px;
+    height: 41px;
 }
 #filtres form{
     display: inherit;
     justify-content: space-between;
     width: 300px;
+}
+#ajouterAdresseBtn{
+    margin-left: 10px;
+}
+#filtres button{
+    margin-left: 10px;
 }

@@ -74,7 +74,7 @@ class AdressesController extends AbstractController
      */
     public function modifierAction(Adresses $oldAdresses, Request $request): Response
     {
-        if( $request->isXmlHttpRequest() && $oldAdresses != null) {
+        if($request->isXmlHttpRequest() && $oldAdresses != null) {
             $json = $this->getJson($request);
             $form = $this->createForm(AdressesType::class, null);
             $form->submit($json);
@@ -99,9 +99,7 @@ class AdressesController extends AbstractController
                 ["success" => $oldAdresses->getId()]
             ], 200);
         } else {
-            return new JsonResponse([
-                ["fail" => 0]
-            ], 412);
+            return new JsonResponse([["fail" => "Action échoué"]], 412);
         }
     }
 
@@ -116,12 +114,12 @@ class AdressesController extends AbstractController
                 $id = $oldAdresses->getId();
                 $em->remove($oldAdresses);
                 $em->flush();
-                return new JsonResponse([["success" => $id]], 202);
+                return new JsonResponse([["success" => $id]], 200);
             } else {
-                return new JsonResponse([["message" => "Impossible de supprimer cette adresse! L'adresse contient des personnes"]], 204);
+                return new JsonResponse([["message" => "Impossible de supprimer cette adresse ! L'adresse contient des personnes"]], 500);
             }
         } else {
-            return new JsonResponse([["message" => "L'adresse à supprimer est n'existe pas !"]], 404);
+            return new JsonResponse([["message" => "L'adresse à supprimer n'existe pas !"]], 404);
         }
     }
     /**
