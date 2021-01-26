@@ -32,3 +32,6 @@ form#filtrePersonne {
 select#filtre-ville , select#filtre-rue {
     margin-right: 10px;
 }
+div#personnes-cadeux {
+    list-style-image: url('/img/icon/gift-puce.png');
+}

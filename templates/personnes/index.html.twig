@@ -135,7 +135,6 @@
             </div>
         </div>
 
-    <div id="msg-if-vide"></div>
     <div id="adresse">
     </div>
     <!-- Modal -->
@@ -150,10 +149,6 @@
         <div id="personnes-cadeux">
         </div>
       </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
     </div>
   </div>
 </div>
@@ -240,10 +235,12 @@
                         let idSupprimer = 's-cadeau-personne-'+ cadeau["idCadeau"];
                         let idModifier = 's-cadeau-personne-'+ cadeau["idCadeau"];
                         $('#personnes-cadeux').append("<li>" +
-                            "Cadeau: " + cadeau["nom"] +
-                            " Age: "+ cadeau["age"] +
-                            " Prix: "+cadeau["prix"]+"$"+
-                            " Categorie: "+cadeau["categorie"]+ " <a href='' id=\""+idSupprimer+"\">Supprimer</a></li>");
+                            cadeau["nom"] +
+                            " | "+cadeau["age"] +" ans"+
+                            " | "+cadeau["prix"]+"$"+
+                            " | Categorie: "+cadeau["categorie"]+ " <a href='' >"+
+                            "<img width=\"24px\" src=\"{{ asset('img/icon/delete.png') }}\" id=\""+idSupprimer+"\" />"
+                            +"</a></li>");
                         $('#'+ idSupprimer).on('click', function (e) {
                             e.preventDefault();
                             $.ajax({
@@ -350,22 +347,40 @@
 
     //supp
         function supprimer(idToDelete){
-            alert("vous le")
-            $.ajax({
-                url: '/personnes/supprimer/' + idToDelete,
-                type: 'DELETE',
+            $.confirm({
+                title: 'Supprimer !',
+                content: 'Voullez vous vraiment supprimer cet utilisateur?',
+                type: 'red',
+                typeAnimated: true,
+                buttons: {
+                    tryAgain: {
+                        text: 'Supprimer',
+                        btnClass: 'btn-red',
+                        action: function(){
+                            $.ajax({
+                                url: '/personnes/supprimer/' + idToDelete,
+                                type: 'DELETE',
 
-                success: function (response) {
-                    if(response[0]["success"] == idToDelete){
-                        $("#s-personne-"+idToDelete).closest('tr').remove();
-                    } else {
-                        console.log('probleme id delete');
+                                success: function (response) {
+                                    if(response[0]["success"] == idToDelete){
+                                        $("#s-personne-"+idToDelete).closest('tr').remove();
+                                    } else {
+                                        console.log('probleme id delete');
+                                    }
+                                },
+                                error: function (response) {
+                                    console.log(response[0]["fail"]);
+                                }
+                            });
+                        }
+                    },
+                    close: {
+                        text: 'Annuler',
+                        action: function () {
+                        }
                     }
-                },
-                error: function (response) {
-                    console.log(response[0]["fail"]);
                 }
-            })
+            });
         }
     //supp
 
@@ -374,12 +389,7 @@
             if(data.length > 1){
                 $("#content").html('');
             }
-            if(data.length == 0){
-                $("#msg-if-vide").html('');
-                let e = $('<div>Aucune personne à afficher</div>');
-                $("#msg-if-vide").append(e);
-            } else{
-                $("#msg-if-vide").html('');
+            if(data.length != 0){
                 for(i = 0; i < data.length; i++) {
                     let ligne = data[i];
                     let idModification = 'm-personne-' + ligne['id'];
@@ -392,10 +402,10 @@
                         '<td class="sexe"></td>' +
                         '<td class="adresse" id="'+ idAdresse +'"></td>' +
                         '<td class="role" id="role-'+ligne['roleNumero']+'"></td>' +
-                        '<td class="mdp"><img src="{{ asset('img/icon/lock.png') }}" alt=""></td>' +
-                        '<td class="cadeaux"><a href="#" id="' + idCadeau + '">Cadeaux souhaités</a></td>' +
-                        ' <td class="modifier"><a href="#" id="' + idModification + '">Modifier</a></td>' +
-                        '<td class="supprimer"><a href="#" id="' + idSuppression + '">Supprimer</a></td>' +
+                        '<td class="mdp"><img src="{{ asset('img/icon/lock.png') }}" alt="" /></td>' +
+                        '<td class="cadeaux"><a href="" ><img width="24px" src="{{ asset('img/icon/gift.png') }}" id="' + idCadeau + '"/></a></td>' +
+                        '<td class="modifier"><a href="" ><img width="24px" src="{{ asset('img/icon/edit.png') }}" id="' + idModification + '"/></a></td>' +
+                        '<td class="supprimer"><a href=""><img width="24px" src="{{ asset('img/icon/delete.png') }}"  id="' + idSuppression + '" /></a></td>' +
                         '</tr>'
                     );
 
@@ -411,17 +421,18 @@
                     );
 
                     $("#content").append(e);
-                    $('#' + idModification).click(function (event) {
+                    $("#" + idModification).on('click', function (event) {
                         event.preventDefault();
                         modifierPersonne(event);
                         $('#modifierModal').modal('show');
                     });
-                    $('#' + idSuppression).click(function (event) {
+                    $("#" + idSuppression).on('click', function (event) {
                         event.preventDefault();
                         let idToDelete = Number(event.target.id.substring(11));
                         supprimer(idToDelete);
                     });
-                    $('#' + idCadeau).click(function (event) {
+
+                    $("#" + idCadeau).on('click',function (event) {
                         event.preventDefault();
                         let idPersonne = Number(event.target.id.substring(11));
                         cadeauxSouhaites(idPersonne);
@@ -441,7 +452,7 @@
             let idRole = $('.role', tr).attr('id').substring(5);
             console.log('hello' + idRole);
             $("#PersonneFormModifier #personnes_adresses_nom").val($('.nom', tr).text());
-            if($('.sexe', tr).text() == 'Home') {
+            if($('.sexe', tr).text() == 'Homme') {
                 $("#PersonneFormModifier #personnes_adresses_sexe_0").attr('checked', true);
             }
             else {
@@ -504,6 +515,7 @@
                 data: JSON.stringify(data),
 
                 success: function (response) {
+                    $("#PersonneFormAjouter")[0].reset();
                     let ligne = response[0];
                     //A mettre dans une fonction
                     if(!ligne["adresse"]["adresseExiste"]) {
@@ -532,7 +544,6 @@
             event.preventDefault();
 
             var data = {};
-            console.log($(this).serializeArray());
             //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
             $(this).serializeArray().forEach(obj=>{
                 let name = getNameInput(obj.name);

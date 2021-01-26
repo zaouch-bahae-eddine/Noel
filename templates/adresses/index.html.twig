@@ -13,7 +13,14 @@
     </div>
     <a href="#">Ajouter</a>
     <!-- form modifier -->
-
+        <div class="modal fade" id="ajoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ajouter cadeau</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
     {{ form_start(adressesFormModifier, {'attr': {'id': 'adressFormModifier', 'action': path('modifier_adresses', {id: 0}), 'method': 'POST'}}) }}
     {{ form_row(adressesFormModifier.nomRue) }}
     {{ form_row(adressesFormModifier.numRue) }}
@@ -37,21 +44,26 @@
     <!-- /form ajouter -->
 
     <!-- Table content-->
-    <table id="adresses">
-        <theader>
-            <tr>
-                <th>Nom rue</th>
-                <th>Numero rue</th>
-                <th>Code postal</th>
-                <th>Ville</th>
-                <th>Modifier</th>
-                <th>Supprimer</th>
-            </tr>
-        </theader>
-        <tbody id="content">
-        </tbody>
-    </table>
-    <div id="msg-if-vide"></div>
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="adresses" class="table table-bordered">
+                    <theader>
+                        <tr>
+                            <th>Nom rue</th>
+                            <th>Numero rue</th>
+                            <th>Code postal</th>
+                            <th>Ville</th>
+                            <th>Modifier</th>
+                            <th>Supprimer</th>
+                        </tr>
+                    </theader>
+                    <tbody id="content">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <!-- /Table content-->
 
 {% endblock %}
