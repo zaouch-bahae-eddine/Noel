@@ -64,6 +64,9 @@ class CategoriesController extends AbstractController
         $data = $this->getJson($request);
         if($categorie != null) {
             $cadeaux = $categorie->getCadeaux();
+            if(count($cadeaux)  == 0) {
+                return $this->json(['fail' => "Aucun cadeau dans cette categorie pour changer leurs pourcentage !"], 404);
+            }
             $somme = 0;
             if ($data["type"] == "plus") {
                 foreach ($cadeaux as $cadeau) {
@@ -123,7 +126,7 @@ class CategoriesController extends AbstractController
             $data = $this->getJson($request);
             $categorie->setNom($data["nom"]);
             if(count($validator->validate($categorie)) > 0){
-                return new JsonResponse(["fail" => 'donneés invalid'], 422);
+                return new JsonResponse(["fail" => 'Donneés de la categorie invalides !'], 422);
             }
             $em = $this->getDoctrine()->getManager();
             $em->flush();

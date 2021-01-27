@@ -144,7 +144,7 @@ class PersonnesController extends AbstractController
                 $newPersonne->setAdresse($newAdresse)
                             ->setNaissance($naissance)
                             ->setRoles([$role])
-                            ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()))
+                            ->setPassword($encoder->encodePassword($newPersonne, $data["password"]))
                 ;
 
 
@@ -166,7 +166,7 @@ class PersonnesController extends AbstractController
                 $newPersonne->setAdresse($adresseExiste)
                             ->setNaissance($naissance)
                             ->setRoles([$role])
-                            ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()))
+                            ->setPassword($encoder->encodePassword($newPersonne, $data["password"]))
                 ;
                 if (count($validator->validate($newPersonne)) > 0) {
                     return $this->json(["fail" => "Données de la personne non valides"], 422);
@@ -268,7 +268,7 @@ class PersonnesController extends AbstractController
                     ->setAdresse($newAdresse)
                     ->setNaissance($naissance)
                     ->setRoles([$role])
-                    ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()))
+                    ->setPassword($encoder->encodePassword($oldPersonnes, $data["password"]))
                 ;
                 if (count($validator->validate($oldPersonnes)) > 0) {
                     return $this->json(["fail" => "Données de la personne non valides"], 422);
@@ -288,7 +288,7 @@ class PersonnesController extends AbstractController
                     ->setAdresse($adresseExiste)
                     ->setNaissance($naissance)
                     ->setRoles([$role])
-                    ->setPassword($encoder->encodePassword($newPersonne, $newPersonne->getPassword()));
+                    ->setPassword($encoder->encodePassword($oldPersonnes, $data["password"]));
                 if (count($validator->validate($oldPersonnes)) > 0) {
                     return $this->json(["fail" => "Données de la personne non valides"], 422);
                 }

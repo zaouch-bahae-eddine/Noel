@@ -175,7 +175,11 @@
                     afficherTableau(data)
                 },
                 error: function(xhr, textStatus, errorThrown) {
-                    console.log(xhr);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Action échoué',
+                        text: "Un probleme de connexion peut etre la cause !",
+                    });
                 }
             });
         });

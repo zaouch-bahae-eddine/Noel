@@ -1,0 +1,33 @@
+#filtre-age {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 650px;
+    margin: 0 auto;
+}
+#filtre-age input {
+    height: 41px;
+}
+#formPourcentage{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 350px;
+    margin: 0 auto;
+}
+#formPourcentage input{
+    max-width: 200px;
+}
+#formPourcentage button{
+    min-width: 41px;
+}
+#container-annuler{
+    width: 650px;
+    text-align: center;
+    margin: 0 auto;
+}
+#annuler-filtre{
+    display: none;
+    padding: 12px;
+    color: #ef4b4b !important;
+}

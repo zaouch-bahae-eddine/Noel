@@ -1,27 +1,36 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello SouhaitController!{% endblock %}
-
+{% block title %}Souhaits{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/souhaitStyle.css') }}">
+{% endblock %}
 {% block body %}
     <h1>Cadeaux pour les souhaits</h1>
     <div id="listeCadeaux">
-        <button id="mesCadeaux">Mes souhaits</button>
-        <button id="tousCadeaux">Tous les cadeaux</button>
+        <button id="mesCadeaux" class="btn btn-primary">Mes souhaits</button>
+        <button id="tousCadeaux" class="btn btn-primary">Tous les cadeaux</button>
     </div>
     <!-- Table content-->
-    <table id="souhait">
-        <theader>
-            <tr>
-                <th>Nom</th>
-                <th>Age</th>
-                <th>Prix</th>
-                <th>Catégorie</th>
-                <th>Ajouter</th>
-            </tr>
-        </theader>
-        <tbody id="content">
-        </tbody>
-    </table>
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="souhait" class="table table-bordered">
+                    <theader>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Age</th>
+                            <th>Prix</th>
+                            <th>Catégorie</th>
+                            <th>Ajouter</th>
+                        </tr>
+                    </theader>
+                    <tbody id="content">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <div id="msg-if-vide"></div>
     <div id="personnes-cadeux">
 
@@ -29,6 +38,7 @@
 
 {% endblock %}
 {% block javascripts %}
+    {{ parent() }}
     <script>
 
         $(document).ready(function() {
@@ -64,17 +74,36 @@
                         let imgSrc = $('#' +idAjout +' img').attr('src');
                         if (imgSrc != '/icones/plus.png') {
                             //Ajax supprimer à la liste des souhaite
-                            $.ajax({
-                                url: '/souhait/supprimer/'+cadeau["idCadeau"],
-                                type: 'POST',
+                            $.confirm({
+                                title: 'Supprimer !',
+                                content: 'Voullez vous vraiment supprimer le cadeau de ta liste des souhait?',
+                                type: 'red',
+                                typeAnimated: true,
+                                buttons: {
+                                    tryAgain: {
+                                        text: 'Supprimer',
+                                        btnClass: 'btn-red',
+                                        action: function(){
+                                            $.ajax({
+                                                url: '/souhait/supprimer/'+cadeau["idCadeau"],
+                                                type: 'POST',
 
-                                success: function(response) {
-                                  $('#' +idAjout +' img').attr('src', "{{ asset('icones/plus.png') }}");
-                                  $('#' + idAjout).closest('tr').attr('class', 'cadeau');
-                                  $('#' + idAjout).closest('tr').css('visibility', 'collapse');
-                                },
-                                error: function(response) {
-                                  console.log('[prob] img supp persiste!');
+                                                success: function(response) {
+                                                    $('#' +idAjout +' img').attr('src', "{{ asset('icones/plus.png') }}");
+                                                    $('#' + idAjout).closest('tr').attr('class', 'cadeau');
+                                                    $('#' + idAjout).closest('tr').css('visibility', 'collapse');
+                                                },
+                                                error: function(response) {
+                                                    console.log('[prob] img supp persiste!');
+                                                }
+                                            });
+                                        }
+                                    },
+                                    close: {
+                                        text: 'Annuler',
+                                        action: function () {
+                                        }
+                                    }
                                 }
                             });
                         } else {

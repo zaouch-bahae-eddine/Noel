@@ -92,7 +92,7 @@
         <div id="personnes-cadeux">
             <ul>
             </ul>
-            <div class="chartSexe">
+            <div class="chartSexe" id="chartSexe">
                 <canvas id="Chart"></canvas>
             </div>
         </div>
@@ -211,6 +211,7 @@
 
     //chart Dessin
     function DessinerChartSexe(tabStatSex){
+        $('#chartSexe').html('<canvas id="Chart"></canvas>');
         var ctx = document.getElementById('Chart').getContext('2d');
         var chart = new Chart(ctx, {
             // The type of chart we want to create

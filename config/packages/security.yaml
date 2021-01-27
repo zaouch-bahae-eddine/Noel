@@ -37,5 +37,5 @@ security:
         #- { path: ^/cadeaux, roles: ROLE_GESTIONNAIRE_STOCK }
         #- { path: ^/categories, roles: ROLE_GESTIONNAIRE_STOCK }
         #- { path: ^/personnes, roles: ROLE_SECRETARIAT }
-        - { path: ^/adresses, roles: ROLE_SECRETARIAT }
+        #- { path: ^/adresses, roles: ROLE_SECRETARIAT }
         - { path: ^/profile, roles: ROLE_USER }

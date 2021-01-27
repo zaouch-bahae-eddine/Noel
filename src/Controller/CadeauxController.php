@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Cadeaux;
+use App\Entity\Categories;
 use App\Form\CadeauxType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -53,17 +54,22 @@ class CadeauxController extends AbstractController
      * @Route("/cadeaux/ajouter", name="ajouter_cadeaux", methods={"POST"})
      */
     public function ajouterCadeaux(Request $request, ValidatorInterface $validator) {
-        if( $request->isXmlHttpRequest()){
+        if(true || $request->isXmlHttpRequest()){
             $data = $this->getJson($request);
             $form = $this->createForm(CadeauxType::class);
             $form->submit($data);
             $cadeau = $form->getData();
+            $categorie = $this->getDoctrine()->getRepository(Categories::class)->findOneBy(['id'=>$data["categorie"]]);
             if(count($validator->validate($cadeau)) > 0){
                 return  $this->json(["fail" => "Données du cadeau invalide !"], 422);
             }
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($cadeau);
-            $em->flush();
+            try {
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($cadeau);
+                $em->flush();
+            } catch (\Exception $e){
+                return $this->json(["fail" => "Données du cadeau invalide !"], 500);
+            }
             return new JsonResponse([["success" => $cadeau->getId()]]);
         } else {
             return $this->json(["fail" => "Un probleme de connexion peut etre la cause !"], 500);
