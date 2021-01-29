@@ -267,8 +267,9 @@ class PersonnesController extends AbstractController
                     ->setSexe($newPersonne->getSexe())
                     ->setAdresse($newAdresse)
                     ->setNaissance($naissance)
-                    ->setRoles([$role])
-                    ->setPassword($encoder->encodePassword($oldPersonnes, $data["password"]))
+                    ->setRoles([$role]);
+                    if($data["password"] != "")
+                    $oldPersonnes->setPassword($encoder->encodePassword($oldPersonnes, $data["password"]))
                 ;
                 if (count($validator->validate($oldPersonnes)) > 0) {
                     return $this->json(["fail" => "Données de la personne non valides"], 422);

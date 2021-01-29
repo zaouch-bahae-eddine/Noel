@@ -44,13 +44,19 @@ function ajouterCadeauEvent(idForm) {
                     $("#content").append(e);
                     $('#' + idModification).click(function (event) {
                         event.preventDefault();
-                        modifierCadeau(event);
+                        modifierCadeau(event, "cadeauxFormModifier");
                         $('#modifModal').modal('show');
                     });
                     $('#' + idSuppression).click(function (event) {
                         event.preventDefault();
                         let idToDelete = Number(event.target.id.substring(9));
                         supprimer(idToDelete);
+                    });
+                    $('#' + idPersonne).click(function (event) {
+                        event.preventDefault();
+                        let idCadeau = Number(event.target.id.substring(9));
+                        getPersonnesOfCadeau(idCadeau);
+                        $('#personnes-chart').modal('show');
                     });
                 }
             },
@@ -127,7 +133,7 @@ function modifierCadeauEvent(idForm) {
 function supprimer(idToDelete){
     $.confirm({
         title: 'Supprimer !',
-        content: 'Voullez vous vraiment supprimer cet utilisateur?',
+        content: 'Voullez vous vraiment supprimer ce cadeau ?',
         type: 'red',
         typeAnimated: true,
         buttons: {
@@ -167,3 +173,47 @@ function supprimer(idToDelete){
 function supprimerCadeauFromTable(id){
     $('#s-cadeau-' +id).closest('tr').remove();
 }
+function getPersonnesOfCadeau(idCadeau) {
+    $.ajax({
+        url: '/cadeaux/personnes/'+idCadeau,
+        type: 'GET',
+
+        success: function (response) {
+            $('#personnes-cadeux ul').html('');
+            response["Personne"].forEach(function (personne) {
+                $('#personnes-cadeux ul').append('<li>'+personne["nom"]+'</li>');
+            });
+            console.log([response["statSexe"]["Femme"],response["statSexe"]["Homme"]]);
+            DessinerChartSexe([response["statSexe"]["Femme"],response["statSexe"]["Homme"]]);
+        },
+        error: function (response) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Action échoué',
+                text: response.responseJSON[0]["fail"]
+            });
+        }
+    });
+}
+//chart Dessin
+function DessinerChartSexe(tabStatSex){
+    $('#chartSexe').html('<canvas id="Chart"></canvas>');
+    var ctx = document.getElementById('Chart').getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'doughnut',
+        // The data for our dataset
+        data: {
+            labels: ['Femme', 'Homme'],
+            datasets: [{
+                backgroundColor: ['#ec5972', '#6259ec'],
+                data: tabStatSex,
+            }]
+        },
+        // Configuration options go here
+        options: {
+            responsive: true,
+        }
+    });
+}
+//chart Dessin

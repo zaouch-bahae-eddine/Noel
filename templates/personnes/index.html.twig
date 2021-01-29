@@ -243,17 +243,42 @@
                             +"</a></li>");
                         $('#'+ idSupprimer).on('click', function (e) {
                             e.preventDefault();
-                            $.ajax({
-                                url: '/personnes/'+idPersonne+'/cadeaux/'+cadeau["idCadeau"],
-                                type: 'DELETE',
+                            $.confirm({
+                                title: 'Supprimer !',
+                                content: 'Voullez vous vraiment supprimer ce cadeau ?',
+                                type: 'red',
+                                typeAnimated: true,
+                                buttons: {
+                                    tryAgain: {
+                                        text: 'Supprimer',
+                                        btnClass: 'btn-red',
+                                        action: function(){
+                                            $.ajax({
+                                                url: '/personnes/'+idPersonne+'/cadeaux/'+cadeau["idCadeau"],
+                                                type: 'DELETE',
 
-                                success: function (response) {
-                                    $('#'+ idSupprimer).closest('li').remove();
-                                },
-                                error: function (response) {
-                                    console.log('[prob] cadeauxSouhaites(idPersonne)');
+                                                success: function (response) {
+                                                    $('#'+ idSupprimer).closest('li').remove();
+                                                },
+                                                error: function (response) {
+                                                    console.log('[prob] cadeauxSouhaites(idPersonne)');
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Action échoué',
+                                                        text: "Un probleme de connexion peut être la cause !"
+                                                    });
+                                                }
+                                            })
+                                        }
+                                    },
+                                    close: {
+                                        text: 'Annuler',
+                                        action: function () {
+                                        }
+                                    }
                                 }
-                            })
+                            });
+
                         });
                     })
                 },
@@ -349,7 +374,7 @@
         function supprimer(idToDelete){
             $.confirm({
                 title: 'Supprimer !',
-                content: 'Voullez vous vraiment supprimer cet utilisateur?',
+                content: 'Voullez vous vraiment supprimer cet utilisateur ?',
                 type: 'red',
                 typeAnimated: true,
                 buttons: {

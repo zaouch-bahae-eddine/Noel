@@ -120,28 +120,7 @@
         $('#ajoutModal').modal('show');
     })
     // Retourn personnes d'un cadeau
-    function getPersonnesOfCadeau(idCadeau) {
-        $.ajax({
-            url: '/cadeaux/personnes/'+idCadeau,
-            type: 'GET',
 
-            success: function (response) {
-                $('#personnes-cadeux ul').html('');
-                response["Personne"].forEach(function (personne) {
-                    $('#personnes-cadeux ul').append('<li>'+personne["nom"]+'</li>');
-                });
-                console.log([response["statSexe"]["Femme"],response["statSexe"]["Homme"]]);
-                DessinerChartSexe([response["statSexe"]["Femme"],response["statSexe"]["Homme"]]);
-            },
-            error: function (response) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Action échoué',
-                    text: response.responseJSON[0]["fail"]
-                });
-            }
-        })
-    }
     //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
     function getNameInput(inputName) {
         let t = inputName.split("");
@@ -209,28 +188,7 @@
     }
     //Fonction qui affiche dans le tableau html les donnée(adresse)
 
-    //chart Dessin
-    function DessinerChartSexe(tabStatSex){
-        $('#chartSexe').html('<canvas id="Chart"></canvas>');
-        var ctx = document.getElementById('Chart').getContext('2d');
-        var chart = new Chart(ctx, {
-            // The type of chart we want to create
-            type: 'doughnut',
-            // The data for our dataset
-            data: {
-                labels: ['Femme', 'Homme'],
-                datasets: [{
-                    backgroundColor: ['#ec5972', '#6259ec'],
-                    data: tabStatSex,
-                }]
-            },
-            // Configuration options go here
-            options: {
-                responsive: true,
-            }
-        });
-    }
-    //chart Dessin
+
 
     //Afficher cadeaux
     $(document).ready(function(){

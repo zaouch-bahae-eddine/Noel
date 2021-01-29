@@ -37,6 +37,9 @@ a{
     color: #eee !important;
     font-family: cursive, sans-serif;
 }
+.nav-item{
+    padding: 0 12px;
+}
 .userCompte img{
     width: 45px;
 }

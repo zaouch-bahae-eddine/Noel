@@ -17,10 +17,23 @@
         <div class="navbar-content">
             <div class="userCompte">
                 <img src="{{ asset('/img/pereNoel.png') }}" alt="">
-                <span class="userNom">Baahae</span>
+                {% if is_granted('ROLE_GESTIONNAIRE_STOCK') or is_granted('ROLE_SECRETARIAT') %}
+                    <span class="userNom">{{ app.user.nom }} </span>
+                {% endif %}
             </div>
             <div class="nav-title">
-                <span>NOEL</span>
+                {% if not is_granted('ROLE_GESTIONNAIRE_STOCK') and not is_granted('ROLE_SECRETARIAT') %}
+                    <span>NOEL</span>
+                {% endif %}
+                {% if is_granted('ROLE_GESTIONNAIRE_STOCK') %}
+                    <a href="{{ path('categories') }}" class="nav-item">Categories</a>
+                    <a href="{{ path('cadeaux') }}" class="nav-item">Cadeaux</a>
+                {% endif %}
+                {% if is_granted('ROLE_SECRETARIAT') %}
+                    <a href="{{ path('personnes') }}" class="nav-item">Personnes</a>
+                    <a href="{{ path('adresses') }}" class="nav-item">Adresses</a>
+                {% endif %}
+
             </div>
             <div class="nav-title">
                 <span class="logout"><a href="{{ path('app_logout') }}">Se déconnecter</a></span>
