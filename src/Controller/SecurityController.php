@@ -24,8 +24,6 @@ class SecurityController extends AbstractController
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        $formPersonne = $this->createForm(PersonnesAdressesType::class);
-
         // if ($this->getUser()) {
         //     return $this->redirectToRoute('target_path');
         // }
@@ -38,7 +36,6 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
-            'formPersonne' => $formPersonne->createView(),
         ]);
     }
 
@@ -50,13 +47,14 @@ class SecurityController extends AbstractController
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
     /**
-     * @Route("/inscription", name="inscription")
+     * @Route("/inscription/enregistrer", name="inscription")
      */
-    public function inscription(Request $request, UserPasswordEncoderInterface $encoder, ValidatorInterface $validator)
+    public function addInscription(Request $request, UserPasswordEncoderInterface $encoder, ValidatorInterface $validator)
     {
         $data = $this->getJson($request);
-        if($data["password"] != $data["password2"])
+        if($data["password"] != $data["password2"]){
             return $this->json(['error' => "La confirmation de mot de passe n'est pas correcte"], 500);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $adresse = $this->getDoctrine()->getRepository(Adresses::class)->findOneBy([
@@ -97,6 +95,15 @@ class SecurityController extends AbstractController
         $this->container->get('session')->set('_security_main', serialize($token));
         return $this->json(["success" => "you are connected"]);
 
+    }
+    /**
+     * @Route("/inscription", name="inscription_page")
+     */
+    public function inscription()
+    {
+        $formPersonne = $this->createForm(PersonnesAdressesType::class);
+        return $this->render('security/inscription.html.twig',[
+            'formPersonne' => $formPersonne->createView()] );
     }
     /**
      * @param Request $request

@@ -37,7 +37,7 @@ a{
     color: #eee !important;
     font-family: cursive, sans-serif;
 }
-.nav-item{
+a.nav-item{
     padding: 0 12px;
 }
 .userCompte img{
@@ -74,3 +74,7 @@ h1{
     padding: 24px;
 }
 /* Style Title pg*/
+button.btn.btn-lg.btn-primary:active, button.btn.btn-lg.btn-primary:focus{
+    background-color: #7b0004 !important;
+    border-color: #5b0100 !important;
+}

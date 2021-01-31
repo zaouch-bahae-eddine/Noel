@@ -4,18 +4,20 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset("/css/indexStyle.css") }}">
+    <style>
+        body{
+            overflow: hidden;
+        }
+    </style>
 {% endblock %}
 {% block body %}
+    {% block navBar %}
+    {% endblock %}
     <div class="indexContent">
         <div class="description">
             <div id="description-content">
                 <div>
                     <h1>C'est Noel !</h1>
-                    <p>Souhaitez les cadeaux de vos réves</p>
-                </div>
-                <div class="btn-Controlle">
-                    <button class="btn btn-lg btn-primary" id="switchFormInscription">S'inscrir</button>
-                    <button class="btn btn-lg btn-primary" id="switchFormConnection">Se connecter</button>
                 </div>
             </div>
         </div>
@@ -24,54 +26,20 @@
                 <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
             {% endif %}
 
-            {% if app.user %}
-            {% endif %}
-
             <h1 class="h3 mb-3 font-weight-normal">Se connecter</h1>
             <label for="inputNom">Nom</label>
             <input type="text" value="{{ last_username }}" name="nom" id="inputNom" class="form-control" required autofocus>
             <label for="inputPassword">Password</label>
             <input type="password" name="password" id="inputPassword" class="form-control" required>
 
-            <input type="hidden" name="_csrf_token"
-                   value="{{ csrf_token('authenticate') }}"
-            >
-
-            {#
-                Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-                See https://symfony.com/doc/current/security/remember_me.html
-
-                <div class="checkbox mb-3">
-                    <label>
-                        <input type="checkbox" name="_remember_me"> Remember me
-                    </label>
-                </div>
-            #}
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
             <button class="btn btn-lg btn-primary" type="submit">
                 Se connecter
             </button>
+            <a id="inscritptionLink" href="{{ path('inscription_page') }}">S'inscrire</a>
         </form>
-            <!-- Formulaire d'ajout -->
-            {{ form_start(formPersonne,{'attr': {'id': 'inscription', 'class': 'login-form'}}) }}
 
-        <div  class="alert alert-danger" id="error" style="display: none">
-        </div>
-            {{ form_row(formPersonne.nom) }}
-            {{ form_row(formPersonne.sexe) }}
-            {{ form_row(formPersonne.naissance) }}
-            {{ form_row(formPersonne.nouvelleAdresse) }}
-            <div class="adresse" style="display: none;">
-                {{ form_row(formPersonne.adresse) }}
-            </div>
-            <label for="first-mdp" >Mot de passe</label>
-            <input type="password" id="first-mdp" name="password" class="form-control">
-
-            <label for="second-mdp">Confirmer mot de passe</label>
-            <input type="password" id="second-mdp" name="password2" class="form-control">
-            <button id="ajoutButton" type="submit" class="btn btn-lg btn-primary" >S'inscrir</button>
-            {{ form_end(formPersonne) }}
-            <!--  Formulaire d'ajout -->
     </div>
 {% endblock %}
 {% block javascripts %}
@@ -80,30 +48,11 @@
         //Design Switch form
         $('#switchFormInscription').on('click', function (e) {
             e.preventDefault();
-            $('#inscription').css('display', 'block');
-        })
-        $('#switchFormConnection').on('click', function (e) {
-            e.preventDefault();
-            $('#inscription').css('display', 'none');
-        })
+            window.location.replace("{{ absolute_url(path('inscription_page')) }}");
+        });
         //Design Switch form
 
-
-
-        //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
-        function getNameInput(inputName) {
-            let t = inputName.split("");
-            let prefix = '';
-            for (i = 0; i < t.length; i++) {
-                if(t[i] != "[" && t[i] != "]"){
-                    prefix += t[i];
-                } else if(t[i] == "["){
-                    prefix = '';
-                }
-            }
-            return prefix;
-        }
-        //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
+       //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
         $(document).ready(function () {
             $('.js-datepicker').datepicker({
                 format : 'dd/mm/yyyy',
@@ -111,48 +60,6 @@
                 months:["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"]
             });
         });
-        $('#inscription').on('submit', function (e) {
-            e.preventDefault();
 
-            var data = {};
-            console.log($(this).serializeArray());
-            //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
-            $(this).serializeArray().forEach(obj=>{
-                let name = getNameInput(obj.name);
-                let value = obj.value || '';
-                if (data[name]) {
-                    if (!Array.isArray(data[name])) {
-                        data[name] = [data[name]];
-                    }
-                    data[name].push(value);
-                } else {
-                    data[name] = value;
-                }
-            });
-            if(data["password"] == data['password2']){
-                $.ajax({
-                    url: "/inscription",
-                    type: 'POST',
-                    dataType: 'json',
-                    async: true,
-                    data: JSON.stringify(data),
-
-                    success: function (response) {
-
-                        $('#error').css('display', 'none');
-                        window.location.replace("{{ absolute_url(path('souhait')) }}");
-                    },
-                    error: function (xhr, status, errorThrown) {
-                        console.log(xhr.responseJSON["fail"]);
-                    }
-                });
-            } else {
-
-                $('#error').css('display', 'block');
-                $("#error").html('La confirmation de mot de passe n\'est pas correcte');
-            }
-            console.log(data);
-
-        })
     </script>
 {% endblock %}

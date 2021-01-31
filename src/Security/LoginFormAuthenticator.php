@@ -81,7 +81,6 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     {
         if($this->encoder->isPasswordValid($user, $credentials['password'])){
             return true;
-            dd($credentials, $user);
         }
         throw new CustomUserMessageAuthenticationException('mot de passe invalide');
     }

@@ -13,6 +13,7 @@
         {% endblock %}
     </head>
     <body>
+    {% block navBar %}
     <nav class="navbar navbar-light" >
         <div class="navbar-content">
             <div class="userCompte">
@@ -36,10 +37,13 @@
 
             </div>
             <div class="nav-title">
-                <span class="logout"><a href="{{ path('app_logout') }}">Se déconnecter</a></span>
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <span class="logout"><a href="{{ path('app_logout') }}">Se déconnecter</a></span>
+                {% endif %}
             </div>
         </div>
     </nav>
+    {% endblock %}
         {% block body %}{% endblock %}
         {% block javascripts %}
 

@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Personnes{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/inscription.css') }}">
+{% endblock %}
+{% block body %}
+    {% block navBar %}
+        {% endblock %}
+    <div class="containerCnx">
+        <div class="leftPart">
+            <button class="btn-rond"><img src="{{ asset('img/icon/left.png') }}" alt=""></button>
+        </div>
+        <div class="containerFormCnx">
+            <div class="headerCnx">
+                <img src="{{ asset('img/icon2.png') }}" alt="" id="logoSimple">
+                <h1 class="titreCnx">S'inscrire</h1>
+            </div>
+            <div class="contantFormCnx">
+                <!-- Formulaire d'ajout -->
+                {{ form_start(formPersonne,{'attr': {'id': 'inscription', 'class': 'login-form'}}) }}
+
+                <div  class="alert alert-danger" id="error" style="display: none">
+                </div>
+                {{ form_row(formPersonne.nom) }}
+                {{ form_row(formPersonne.sexe) }}
+                {{ form_row(formPersonne.naissance) }}
+                {{ form_row(formPersonne.nouvelleAdresse) }}
+                <div class="adresse" style="display: none;">
+                    {{ form_row(formPersonne.adresse) }}
+                </div>
+                <label for="first-mdp" >Mot de passe</label>
+                <input type="password" id="first-mdp" name="password" class="form-control">
+
+                <label for="second-mdp">Confirmer mot de passe</label>
+                <input type="password" id="second-mdp" name="password2" class="form-control">
+                <button id="ajoutButton" type="submit" class="btn btn-lg btn-primary" >S'inscrire</button>
+                <!--  Formulaire d'ajout -->
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            $('.js-datepicker').datepicker({
+                format : 'dd/mm/yyyy',
+                daysMin:["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"],
+                months:["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"]
+            });
+        });
+        //Return le nom des input de symfony sous la forme de cet exemple (adresse[nom] => nom)
+        function getNameInput(inputName) {
+            let t = inputName.split("");
+            let prefix = '';
+            for (i = 0; i < t.length; i++) {
+                if(t[i] != "[" && t[i] != "]"){
+                    prefix += t[i];
+                } else if(t[i] == "["){
+                    prefix = '';
+                }
+            }
+            return prefix;
+        }
+        $('#inscription').on('submit', function (e) {
+            e.preventDefault();
+
+            var data = {};
+            console.log($(this).serializeArray());
+            //[ {name: nom-de-input, value: valeur-input}, {...}, {...}, {...}... ]
+            $(this).serializeArray().forEach(obj=>{
+                let name = getNameInput(obj.name);
+                let value = obj.value || '';
+                if (data[name]) {
+                    if (!Array.isArray(data[name])) {
+                        data[name] = [data[name]];
+                    }
+                    data[name].push(value);
+                } else {
+                    data[name] = value;
+                }
+            });
+            if(data["password"] == data['password2']){
+                $.ajax({
+                    url: "/inscription/enregistrer",
+                    type: 'POST',
+                    dataType: 'json',
+                    async: true,
+                    data: JSON.stringify(data),
+
+                    success: function (response) {
+
+                        $('#error').css('display', 'none');
+                        window.location.replace("{{ absolute_url(path('souhait')) }}");
+                    },
+                    error: function (xhr, status, errorThrown) {
+                        console.log(xhr.responseJSON["fail"]);
+                    }
+                });
+            } else {
+
+                $('#error').css('display', 'block');
+                $("#error").html('La confirmation de mot de passe n\'est pas correcte');
+            }
+            console.log(data);
+
+        });
+        $('.btn-rond').on('click', function (e) {
+            e.preventDefault();
+            window.location.replace("{{ absolute_url(path('app_login')) }}");
+        });
+    </script>
+{% endblock %}
