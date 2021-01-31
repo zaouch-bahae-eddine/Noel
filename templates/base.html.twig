@@ -14,37 +14,41 @@
     </head>
     <body>
     {% block navBar %}
-    <nav class="navbar navbar-light" >
-        <div class="navbar-content">
-            <div class="userCompte">
-                <img src="{{ asset('/img/pereNoel.png') }}" alt="">
-                {% if is_granted('ROLE_GESTIONNAIRE_STOCK') or is_granted('ROLE_SECRETARIAT') %}
-                    <span class="userNom">{{ app.user.nom }} </span>
-                {% endif %}
-            </div>
-            <div class="nav-title">
-                {% if not is_granted('ROLE_GESTIONNAIRE_STOCK') and not is_granted('ROLE_SECRETARIAT') %}
-                    <span>NOEL</span>
-                {% endif %}
-                {% if is_granted('ROLE_GESTIONNAIRE_STOCK') %}
-                    <a href="{{ path('categories') }}" class="nav-item">Categories</a>
-                    <a href="{{ path('cadeaux') }}" class="nav-item">Cadeaux</a>
-                {% endif %}
+        <ul id="nav-bady-left-css">
+            <li>
+                <div class="userCompte">
+                    <img src="{{ asset('/img/pereNoel.png') }}" alt="">
+                    {% if is_granted('ROLE_GESTIONNAIRE_STOCK') or is_granted('ROLE_SECRETARIAT') %}
+                        <span class="userNom">{{ app.user.nom }} </span>
+                    {% endif %}
+                </div>
+            </li>
+            {% if is_granted('ROLE_GESTIONNAIRE_STOCK') %}
+                <li><a href="{{ path('categories') }}" class="nav-item"><img src="{{ asset('img/icon/nav/categories.png') }}" alt="">Categories</a></li>
+                <li><a href="{{ path('cadeaux') }}" class="nav-item"><img src="{{ asset('img/icon/nav/gift.png') }}" alt=""> Cadeaux</a></li>
+            {% endif %}
                 {% if is_granted('ROLE_SECRETARIAT') %}
-                    <a href="{{ path('personnes') }}" class="nav-item">Personnes</a>
-                    <a href="{{ path('adresses') }}" class="nav-item">Adresses</a>
+                    <li><a href="{{ path('personnes') }}" class="nav-item"><img src="{{ asset('img/icon/nav/personne.png') }}" alt=""> Personnes</a></li>
+                    <li><a href="{{ path('adresses') }}" class="nav-item"><img src="{{ asset('img/icon/nav/adress.png') }}" alt="">  Adresses</a></li>
                 {% endif %}
-
-            </div>
-            <div class="nav-title">
+            </li>
                 {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                    <span class="logout"><a href="{{ path('app_logout') }}">Se déconnecter</a></span>
+                  <li>
+                      <span class="logout"><a href="{{ path('app_logout') }}"><img src="{{ asset('img/icon/nav/logout.png') }}" alt=""> Se déconnecter</a></span>
+                  </li>
                 {% endif %}
-            </div>
-        </div>
-    </nav>
+        </ul>
+        <style>
+            #nav-bady-css {
+                margin-left:25%;
+                padding:1px 16px;
+                height:1000px;
+            }
+        </style>
     {% endblock %}
+    <div id="nav-bady-css">
         {% block body %}{% endblock %}
+    </div>
         {% block javascripts %}
 
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>

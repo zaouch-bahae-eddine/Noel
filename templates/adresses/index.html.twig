@@ -6,15 +6,16 @@
     <link rel="stylesheet" href="{{ asset('css/AdresseStyle.css') }}">
 {% endblock %}
 {% block body %}
-    <h1> Gestion des adresses</h1>
-    <div id="filtres">
-        <form>
-            <input type="text" class="form-control" id="filtreVille" placeholder="Ville"/>
-            <button type="submit" class="btn btn-primary" >Recherche</button>
-        </form>
-        <button class="btn btn-primary" id="ajouterAdresseBtn">Ajouter adresse</button>
+    <div id="header">
+        <h1> Gestion des adresses</h1>
+        <div id="filtres">
+            <form>
+                <input type="text" class="form-control" id="filtreVille" placeholder="Ville"/>
+                <button type="submit" class="btn btn-primary" >Recherche</button>
+            </form>
+            <button class="btn btn-primary" id="ajouterAdresseBtn">Ajouter adresse</button>
+        </div>
     </div>
-    <a href="#">Ajouter</a>
     <!-- form modifier -->
         <div class="modal fade" id="modifModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">

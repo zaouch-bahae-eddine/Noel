@@ -6,7 +6,19 @@
     <link rel="stylesheet" href="{{ asset('css/categorie.css') }}">
 {% endblock %}
 {% block body %}
-<h1> Gestion des categories</h1>
+    <div id="header">
+        <h1> Gestion des categories</h1>
+        <form id="filtre-age">
+            <div>
+                <input type="text" id="age-min" placeholder="Minimum d'age inclus" class="form-control">
+            </div>
+            <div>
+                <input type="text" id="age-max" placeholder="Maximum d'age inclus" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Filtre</button>
+            <button class="btn btn-primary" id="ajouterCategorieModale">Ajouter categorie</button>
+        </form>
+    </div>
     <!-- Form Ajout-->
 <div class="modal fade" id="ajoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -50,17 +62,6 @@
         </div>
     </div>
     <!-- Form Ajout-->
-
-    <form id="filtre-age">
-        <div>
-            <input type="text" id="age-min" placeholder="Minimum d'age inclus" class="form-control">
-        </div>
-        <div>
-            <input type="text" id="age-max" placeholder="Maximum d'age inclus" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-primary">Filtre</button>
-        <button class="btn btn-primary" id="ajouterCategorieModale">Ajouter categorie</button>
-    </form>
     <div id="container-annuler">
         <a href="" id="annuler-filtre">Annuler</a>
     </div>

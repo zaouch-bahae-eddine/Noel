@@ -7,21 +7,23 @@
 {% endblock %}
 {% block body %}
 
-
-    <!-- Modal -->
-    <div class="filtre">
-        <form id="filtrePersonne">
-            <select id="filtre-ville" class="form-control" >
-                <option selected="selected">Ville</option>
-            </select>
-            <select id="filtre-rue" disabled  class="form-control" >
-                <option selected="selected">Nom rue</option>
-            </select>
-        </form>
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajoutModal">
-            Ajouter Personne
-        </button>
+    <div id="header">
+        <h1> Gestion des personnes</h1>
+        <!-- Modal -->
+        <div class="filtre">
+            <form id="filtrePersonne">
+                <select id="filtre-ville" class="form-control" >
+                    <option selected="selected">Ville</option>
+                </select>
+                <select id="filtre-rue" disabled  class="form-control" >
+                    <option selected="selected">Nom rue</option>
+                </select>
+            </form>
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajoutModal">
+                Ajouter Personne
+            </button>
+        </div>
     </div>
         <div class="modal fade" id="ajoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
